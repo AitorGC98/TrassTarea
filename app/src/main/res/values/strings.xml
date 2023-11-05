@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TrassTarea</string>
+    <string name="tv_titulo">Tus tareas, tu ritmo, tu éxito</string>
+    <string name="btn_empezar">Empezar</string>
 </resources>
