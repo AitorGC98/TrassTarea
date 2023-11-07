@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/it_group_añadir"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visible="true">
+        <item
+            android:id="@+id/it_añadir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/baseline_add_task_24"
+            android:title="@string/it_añadir"
+            app:showAsAction="ifRoom" />
+    </group>
+    <group
+        android:id="@+id/it_group_favoritos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <item
+            android:id="@+id/it_favoritos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/baseline_star_outline_24"
+            android:title="@string/it_favoritos"
+            app:showAsAction="ifRoom" />
+    </group>
+    <group
+        android:id="@+id/it_group_menufinal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <item
+            android:id="@+id/it_acerca"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="@string/it_acerca" />
+        <item
+            android:id="@+id/it_salir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="@string/it_salir" />
+    </group>
+</menu>

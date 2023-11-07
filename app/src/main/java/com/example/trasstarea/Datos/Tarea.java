@@ -3,6 +3,8 @@ package com.example.trasstarea.Datos;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
@@ -12,13 +14,15 @@ public class Tarea implements Parcelable {
     private int progreso;
     private Date fechaCreacion;
     private Date fechaObjetio;
+    private boolean prioritario;
 
-    public Tarea(String titulo, String descripcion, int progreso, Date fechaCreacion, Date fechaObjetio) {
+    public Tarea(String titulo, String descripcion, int progreso, Date fechaCreacion, Date fechaObjetio,boolean prioritario) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.progreso = progreso;
         this.fechaCreacion = fechaCreacion;
         this.fechaObjetio = fechaObjetio;
+        this.prioritario=prioritario;
     }
 
 
@@ -33,6 +37,10 @@ public class Tarea implements Parcelable {
     @Override
     public int hashCode() {
         return Objects.hash(titulo, descripcion, progreso, fechaCreacion, fechaObjetio);
+    }
+
+    public boolean isPrioritario() {
+        return prioritario;
     }
 
     public String getTitulo() {
@@ -75,6 +83,11 @@ public class Tarea implements Parcelable {
         this.fechaObjetio = fechaObjetio;
     }
 
+    public void setPrioritario(boolean prioritario) {
+        this.prioritario = prioritario;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -87,6 +100,7 @@ public class Tarea implements Parcelable {
         dest.writeInt(this.progreso);
         dest.writeLong(this.fechaCreacion != null ? this.fechaCreacion.getTime() : -1);
         dest.writeLong(this.fechaObjetio != null ? this.fechaObjetio.getTime() : -1);
+        dest.writeByte(this.prioritario ? (byte) 1 : (byte) 0);
     }
 
     public void readFromParcel(Parcel source) {
@@ -97,6 +111,7 @@ public class Tarea implements Parcelable {
         this.fechaCreacion = tmpFechaCreacion == -1 ? null : new Date(tmpFechaCreacion);
         long tmpFechaObjetio = source.readLong();
         this.fechaObjetio = tmpFechaObjetio == -1 ? null : new Date(tmpFechaObjetio);
+        this.prioritario = source.readByte() != 0;
     }
 
     protected Tarea(Parcel in) {
@@ -107,6 +122,7 @@ public class Tarea implements Parcelable {
         this.fechaCreacion = tmpFechaCreacion == -1 ? null : new Date(tmpFechaCreacion);
         long tmpFechaObjetio = in.readLong();
         this.fechaObjetio = tmpFechaObjetio == -1 ? null : new Date(tmpFechaObjetio);
+        this.prioritario = in.readByte() != 0;
     }
 
     public static final Creator<Tarea> CREATOR = new Creator<Tarea>() {
@@ -120,4 +136,25 @@ public class Tarea implements Parcelable {
             return new Tarea[size];
         }
     };
+    public int getDiasRestantes() {
+        if (fechaObjetio == null) {
+            // Si la fecha objetivo es nula, retornamos un valor negativo para indicar que no hay fecha objetivo establecida.
+            return -1;
+        }
+
+        // Obtén la fecha actual
+        Calendar fechaActual = Calendar.getInstance();
+
+        // Convierte la fecha objetivo a un objeto Calendar
+        Calendar fechaObjetivo = Calendar.getInstance();
+        fechaObjetivo.setTime(fechaObjetio);
+
+        // Calcula la diferencia en milisegundos entre la fecha objetivo y la fecha actual
+        long diferenciaMilisegundos = fechaObjetivo.getTimeInMillis() - fechaActual.getTimeInMillis();
+
+        // Convierte la diferencia en milisegundos a días
+        int diasRestantes = (int) (diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+
+        return diasRestantes;
+    }
 }
