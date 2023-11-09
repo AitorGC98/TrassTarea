@@ -1,6 +1,7 @@
 package com.example.trasstarea.Adaptador;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +70,17 @@ public class TareaAdapter extends RecyclerView.Adapter{
 
             fecha.setText(formatoFecha.format(t.getFechaCreacion()));
 
-            dias.setText(String.valueOf(t.getDiasRestantes()));
+            int diasRestantes = t.getDiasRestantes();
+            if (diasRestantes < 0) {
+                // Si los días restantes son negativos, cambia el color del texto a rojo
+                dias.setTextColor(Color.RED);
+            } else {
+                // Si los días restantes son no negativos, establece el color del texto en su valor predeterminado
+                dias.setTextColor(Color.BLACK); // O el color que desees
+            }
+
+            dias.setText(String.valueOf(diasRestantes));
+
             if(t.isPrioritario()){
                 prioritaria.setImageResource(R.drawable.baseline_stars_24);
             }else{

@@ -66,6 +66,8 @@ public class ListadoTareasActivity extends AppCompatActivity {
             Date fechaObjetivo6 = formatoFecha.parse("12/01/2024");
             Date fechaCreacion7 = formatoFecha.parse("12/11/2023");
             Date fechaObjetivo7 = formatoFecha.parse("30/11/2023");
+            Date fechaCreacion8 = formatoFecha.parse("12/11/2023");
+            Date fechaObjetivo8 = formatoFecha.parse("02/11/2023");
 
             datos.add(new Tarea("PSP", "realizar una tarea de psp", 23, fechaCreacion, fechaObjetivo, true));
             datos.add(new Tarea("Moviles", "realizar una tarea de para moviles", 50, fechaCreacion1, fechaObjetivo1, true));
@@ -75,6 +77,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
             datos.add(new Tarea("Sistemas de gestion", "realizar una tarea de sistemas de gestion", 99, fechaCreacion5, fechaObjetivo5, true));
             datos.add(new Tarea("tarea de limpieza", "limpiar el cuarto", 89, fechaCreacion6, fechaObjetivo6, false));
             datos.add(new Tarea("Ir a comprar", "realizar una compra", 10, fechaCreacion7, fechaObjetivo7, false));
+            datos.add(new Tarea("Hacer un pedido", "hacer un pedido", 10, fechaCreacion8, fechaObjetivo8, true));
         } catch (ParseException e) {
             e.printStackTrace();
         }
