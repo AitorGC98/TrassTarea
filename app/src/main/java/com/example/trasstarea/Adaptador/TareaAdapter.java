@@ -39,6 +39,11 @@ public class TareaAdapter extends RecyclerView.Adapter{
         holder.itemView.setVisibility(View.GONE);
         holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
     }
+
+    public void agregarNuevaTarea(Tarea nuevaTarea) {
+        datos.add(nuevaTarea);
+        notifyItemInserted(datos.size()-1); // Notifica al adaptador que se ha insertado un nuevo ítem
+    }
     public void mostrarTarea(RecyclerView.ViewHolder holder, Tarea tarea) {
         holder.itemView.setVisibility(View.VISIBLE);
         holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(

@@ -8,4 +8,15 @@
     <string name="it_salir">Salir</string>
     <string name="tv_quedan">Quedan:</string>
     <string name="tv_dias">días</string>
+    <string name="añadir_tarea">Añadir Tarea</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="et_titulo">Título</string>
+    <string name="tv_prioritaria">Prioritaria</string>
+    <string name="btn_siguiente">Siguiente</string>
+    <string name="et_fechaCreacion">Fecha de Creación</string>
+    <string name="et_fechaObjectivo">Fecha Objetivo</string>
+    <string name="btn_volver">Volver</string>
+    <string name="btn_guardar">Guardar</string>
+    <string name="etm_descripcion">Descripción</string>
 </resources>
