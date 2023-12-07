@@ -35,6 +35,7 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
     private RecyclerView rv;
     private TextView tvLista;
     private boolean mostrarSoloPrioritarias=false;
+    private int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +85,7 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
                         if(adaptador!=null){
                             adaptador.agregarNuevaTarea(tarea);
                         }
-                        Toast.makeText(getApplicationContext(), "Se ha guaradado una nueva tarea", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Se ha guardado una nueva tarea", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -99,8 +100,13 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         //No hay códigos de actividad
                         Intent intentDevuelto = result.getData();
-                        String valor = (String) intentDevuelto.getExtras().get("Resultado");
-                        Toast.makeText(getApplicationContext(), valor, Toast.LENGTH_LONG).show();
+                        assert intentDevuelto != null;
+                        Tarea tarea = (Tarea) Objects.requireNonNull(intentDevuelto.getExtras()).get("Resultado");
+                        TareaAdapter adaptador = (TareaAdapter) rv.getAdapter();
+                        if(adaptador!=null){
+                            adaptador.editarLista(tarea,pos);
+                        }
+                        Toast.makeText(getApplicationContext(), "Se ha editado una tarea", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -143,6 +149,7 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
     @Override
     public void onTareaEdit(Tarea tarea, int posicion) {
         irEditarTarea(posicion, tarea);
+        pos=posicion;
     }
 
     public void irEditarTarea(int posicion, Tarea tarea) {

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.trasstarea.Datos.Tarea;
@@ -15,7 +16,11 @@ import com.example.trasstarea.Fragmentos.Fragmento1;
 import com.example.trasstarea.Fragmentos.Fragmento2;
 import com.example.trasstarea.FragmentsUtilities.CompartirViewModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.ComunicarFragmento1, Fragmento2.ComunicarFragmento2 {
 
@@ -99,12 +104,6 @@ public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.
     public void volver() {
         titulo=compartirViewModel.getTitulo().getValue();
         descripcion=compartirViewModel.getDescripcion().getValue();
-        if(compartirViewModel.getProgreso().getValue()==null){
-            progreso=porcentajes[0];
-        }else{
-            progreso=porcentajes[compartirViewModel.getProgreso().getValue()];
-        }
-
         fechaCreacion=compartirViewModel.getFechaCreacion().getValue();
         fechaObjetivo=compartirViewModel.getFechaObjetivo().getValue();
         if(compartirViewModel.getPrioritarias().getValue()==null){
@@ -112,7 +111,7 @@ public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.
         }else{
             prioritaria=compartirViewModel.getPrioritarias().getValue();
         }
-
+        progreso=porcentajes[compartirViewModel.getProgreso().getValue()];
 
         Tarea tarea=new Tarea(titulo,descripcion,progreso,fechaCreacion,fechaObjetivo,prioritaria);
         Intent intentVolver = new Intent();

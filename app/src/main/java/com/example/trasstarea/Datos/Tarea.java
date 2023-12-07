@@ -135,20 +135,17 @@ public class Tarea implements Parcelable {
         dest.writeLong(this.fechaCreacion != null ? this.fechaCreacion.getTime() : -1);
         dest.writeLong(this.fechaObjetio != null ? this.fechaObjetio.getTime() : -1);
         dest.writeByte(this.prioritario ? (byte) 1 : (byte) 0);
-        dest.writeSerializable(this.formatoFecha);
+
     }
 
-    public void readFromParcel(Parcel source) {
-        this.titulo = source.readString();
-        this.descripcion = source.readString();
-        this.progreso = source.readInt();
-        this.id = source.readInt();
-        long tmpFechaCreacion = source.readLong();
-        this.fechaCreacion = tmpFechaCreacion == -1 ? null : new Date(tmpFechaCreacion);
-        long tmpFechaObjetio = source.readLong();
-        this.fechaObjetio = tmpFechaObjetio == -1 ? null : new Date(tmpFechaObjetio);
-        this.prioritario = source.readByte() != 0;
-        this.formatoFecha = (SimpleDateFormat) source.readSerializable();
+    public void readFromParcel(Parcel dest, int flags) {
+        dest.writeString(this.titulo);
+        dest.writeString(this.descripcion);
+        dest.writeInt(this.progreso);
+        dest.writeInt(this.id);
+        dest.writeLong(this.fechaCreacion != null ? this.fechaCreacion.getTime() : -1);
+        dest.writeLong(this.fechaObjetio != null ? this.fechaObjetio.getTime() : -1);
+        dest.writeByte(this.prioritario ? (byte) 1 : (byte) 0);
     }
 
     protected Tarea(Parcel in) {
@@ -161,7 +158,6 @@ public class Tarea implements Parcelable {
         long tmpFechaObjetio = in.readLong();
         this.fechaObjetio = tmpFechaObjetio == -1 ? null : new Date(tmpFechaObjetio);
         this.prioritario = in.readByte() != 0;
-        this.formatoFecha = (SimpleDateFormat) in.readSerializable();
     }
 
     public static final Creator<Tarea> CREATOR = new Creator<Tarea>() {

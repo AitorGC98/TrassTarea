@@ -111,6 +111,15 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
         void onTareaEdit(Tarea tarea,int posicion);
 
     }
+    public void editarLista(Tarea tareaEditada, int posicion) {
+        if (posicion >= 0 && posicion < datos.size()) {
+            datos.set(posicion, tareaEditada);
+            notifyItemChanged(posicion); // Notifica al adaptador que el ítem en la posición dada ha cambiado
+            if (onDataChangeListener != null) {
+                onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
+            }
+        }
+    }
 
     public class TareaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
 
