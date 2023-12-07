@@ -7,9 +7,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-public class ListadoTareasActivity extends AppCompatActivity {
+public class ListadoTareasActivity extends AppCompatActivity implements TareaAdapter.OnDataChangeListener {
     private ArrayList<Tarea> datos=new ArrayList<>();
     private RecyclerView rv;
     private TextView tvLista;
@@ -40,18 +40,32 @@ public class ListadoTareasActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listado_tareas);
-        init();
-
-        TareaAdapter adaptador = new TareaAdapter(this,datos);
-        rv=findViewById(R.id.rv_lista);
-        rv.setAdapter(adaptador);
-        rv.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
-
-
-        tvLista=findViewById(R.id.tv_lista);
-        if(datos.isEmpty()){
-            tvLista.setText("No hay tareas disponibles");
+        if (savedInstanceState != null) {
+            datos = savedInstanceState.getParcelableArrayList("datos");
+            mostrarSoloPrioritarias = savedInstanceState.getBoolean("mostrarSoloPrioritarias");
+        } else {
+            init(); // Solo inicializa datos si no hay datos guardados en el Bundle
         }
+
+        TareaAdapter adaptador = new TareaAdapter(this, datos);
+        adaptador.setMostrarSoloPrioritarias(mostrarSoloPrioritarias); // mostramos aquellas que sean favoritas
+        adaptador.setOnDataChangeListener(this); // Establece la actividad como escucha de cambios
+        rv = findViewById(R.id.rv_lista);
+        rv.setAdapter(adaptador);
+        rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        tvLista = findViewById(R.id.tv_lista);
+        actualizarEstadoTextView();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // GUARDAR DATOS Y ESTADO DEL ADAPTADOR
+        outState.putParcelableArrayList("datos", datos);
+        outState.putBoolean("mostrarSoloPrioritarias", mostrarSoloPrioritarias);
     }
 
     ActivityResultLauncher<Intent> lanzadorActividades = registerForActivityResult(
@@ -66,7 +80,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
                         Intent intentDevuelto = result.getData();
                         assert intentDevuelto != null;
                         Tarea tarea = (Tarea) Objects.requireNonNull(intentDevuelto.getExtras()).get("Resultado");
-
                         TareaAdapter adaptador = (TareaAdapter) rv.getAdapter();
                         if(adaptador!=null){
                             adaptador.agregarNuevaTarea(tarea);
@@ -75,6 +88,23 @@ public class ListadoTareasActivity extends AppCompatActivity {
                     }
                 }
             });
+
+    ActivityResultLauncher<Intent> lanzadorEditar = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+
+                //Método para gestionar el resultado
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        //No hay códigos de actividad
+                        Intent intentDevuelto = result.getData();
+                        String valor = (String) intentDevuelto.getExtras().get("Resultado");
+                        Toast.makeText(getApplicationContext(), valor, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,8 +122,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
 
             Intent intentIda = new Intent(this, CrearTareaActivity.class);
 
-            // Pasa la lista datos como extra al Intent
-            //intentIda.putExtra("lista", datos);
             lanzadorActividades.launch(intentIda);
 
         } else if (id == R.id.it_favoritos) {
@@ -102,6 +130,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
             // Cambiar entre tareas prioritarias y todas las tareas
             mostrarSoloPrioritarias = !mostrarSoloPrioritarias;
             adaptador.setMostrarSoloPrioritarias(mostrarSoloPrioritarias);
+            actualizarEstadoTextView();
         } else if (id == R.id.it_acerca) {
             mostrarAcercaDe();
         } else if (id == R.id.it_salir) {
@@ -109,6 +138,48 @@ public class ListadoTareasActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onTareaEdit(Tarea tarea, int posicion) {
+        irEditarTarea(posicion, tarea);
+    }
+
+    public void irEditarTarea(int posicion, Tarea tarea) {
+        Intent intentIda = new Intent(this, EditarTareaActivity.class);
+        intentIda.putExtra("objeto", tarea);
+        intentIda.putExtra("posicion", posicion);
+        lanzadorEditar.launch(intentIda);
+    }
+
+
+    @Override
+    public void onDataChanged() {
+        actualizarEstadoTextView();
+    }
+    private void actualizarEstadoTextView() {
+        if (mostrarSoloPrioritarias) {
+            if (hayTareasPrioritarias()) {
+                tvLista.setText(""); // Si hay tareas prioritarias, no mostrar mensaje
+            } else {
+                tvLista.setText("No hay tareas prioritarias");
+            }
+        } else {
+            if (datos.isEmpty()) {
+                tvLista.setText("No hay tareas disponibles");
+            } else {
+                tvLista.setText(""); // Limpiar el texto si hay tareas
+            }
+        }
+    }
+
+    private boolean hayTareasPrioritarias() {
+        for (Tarea tarea : datos) {
+            if (tarea.isPrioritario()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void mostrarAcercaDe() {
