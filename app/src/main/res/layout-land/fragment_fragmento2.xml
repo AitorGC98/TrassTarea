@@ -37,7 +37,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/scrollView2"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/boton"/>
 
     <Button
         android:id="@+id/btn_guardar"
@@ -48,5 +50,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/scrollView2" />
+        app:layout_constraintStart_toEndOf="@+id/scrollView2"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/boton"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,7 +9,8 @@
     <string name="tv_quedan">Quedan:</string>
     <string name="tv_dias">días</string>
     <string name="añadir_tarea">Añadir Tarea</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
+
     <string name="et_titulo">Título</string>
     <string name="tv_prioritaria">Prioritaria</string>
     <string name="btn_siguiente">Siguiente</string>
@@ -21,7 +22,27 @@
     <string name="menu_descripcion">Descripción</string>
     <string name="menu_editar">Editar</string>
     <string name="menu_borrar">Borrar</string>
+    <string name="estado_tareas">No hay tareas disponibles</string>
+    <string name="acercade">Acerca de</string>
+    <string name="centro">Centro</string>
+    <string name="autor">Autor/a</string>
+    <string name="descripcion_tarea">Descripción de la tarea</string>
+
+    <string name="estado_no_iniciada">No iniciada</string>
+    <string name="estado_iniciada">Iniciada</string>
+    <string name="estado_avanzada">Avanzada</string>
+    <string name="estado_casi_finalizada">Casi finalizada</string>
+    <string name="estado_finalizada">Finalizada</string>
+
+    <string name="tarea_borrada">Tarea Borrada</string>
+    <string name="tarea_editada">Se ha editado una tarea</string>
+    <string name="tarea_guardada">Se ha guardado una tarea</string>
+
+    <string name="boton_aceptar">Aceptar</string>
     <!-- Strings used for fragments for navigation -->
 
     <string name="editar_tarea">Editar Tarea</string>
+
+    <string name="salir">Hasta Pronto</string>
+    <string name="aviso">Por favor, complete todos los campos</string>
 </resources>

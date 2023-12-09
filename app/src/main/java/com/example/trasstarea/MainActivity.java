@@ -8,17 +8,19 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    private Button btnEmpezar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_main);
 
-        btnEmpezar=findViewById(R.id.btn_empezar);
+       //Bindeo del boton
+        Button btnEmpezar = findViewById(R.id.btn_empezar);
+        //acción establecida para el botón cuando este es pulsado
         btnEmpezar.setOnClickListener(this::enviar);
 
 
     }
+    //Función que lanza la actividad ListadoTareasActivity
     public void enviar(View view) {
         Intent intent = new Intent(this, ListadoTareasActivity.class);
         startActivity(intent);

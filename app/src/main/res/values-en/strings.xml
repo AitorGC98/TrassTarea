@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TrassTarea</string>
+    <string name="tv_titulo">Your tasks, your pace, your success</string>
+    <string name="btn_empezar">Start</string>
+    <string name="it_añadir">Add to List</string>
+    <string name="it_favoritos">Favorites List</string>
+    <string name="it_acerca">About...</string>
+    <string name="it_salir">Exit</string>
+    <string name="tv_quedan">Remaining:</string>
+    <string name="tv_dias">days</string>
+    <string name="añadir_tarea">Add Task</string>
+
+    <string name="et_titulo">Title</string>
+    <string name="tv_prioritaria">Priority</string>
+    <string name="btn_siguiente">Next</string>
+    <string name="et_fechaCreacion">Creation Date</string>
+    <string name="et_fechaObjectivo">Target Date</string>
+    <string name="btn_volver">Back</string>
+    <string name="btn_guardar">Save</string>
+    <string name="etm_descripcion">Description</string>
+    <string name="menu_descripcion">Description</string>
+    <string name="menu_editar">Edit</string>
+    <string name="menu_borrar">Delete</string>
+    <string name="estado_tareas">No tasks available</string>
+    <string name="acercade">About</string>
+    <string name="centro">Center</string>
+    <string name="autor">Author</string>
+    <string name="descripcion_tarea">Task Description</string>
+
+    <string name="estado_no_iniciada">Not Started</string>
+    <string name="estado_iniciada">Started</string>
+    <string name="estado_avanzada">Advanced</string>
+    <string name="estado_casi_finalizada">Almost Finished</string>
+    <string name="estado_finalizada">Finished</string>
+
+    <string name="tarea_borrada">Task Deleted</string>
+    <string name="tarea_editada">A task has been edited</string>
+    <string name="tarea_guardada">A task has been saved</string>
+
+    <string name="boton_aceptar">Accept</string>
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="editar_tarea">Edit Task</string>
+
+    <string name="salir">See you soon</string>
+
+    <string name="aviso">Please, complete all fields</string>
+</resources>

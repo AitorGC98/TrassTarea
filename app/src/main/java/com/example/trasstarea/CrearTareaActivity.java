@@ -8,19 +8,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-
 import com.example.trasstarea.Datos.Tarea;
 import com.example.trasstarea.Fragmentos.Fragmento1;
 import com.example.trasstarea.Fragmentos.Fragmento2;
 import com.example.trasstarea.FragmentsUtilities.CompartirViewModel;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.ComunicarFragmento1, Fragmento2.ComunicarFragmento2 {
 
@@ -28,12 +19,7 @@ public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.
     Fragmento2 fragmentoDos=new Fragmento2();
     private FragmentManager fragmentManager;
     CompartirViewModel compartirViewModel;
-    private Bundle bundle;
-    private String titulo,descripcion,fechaCreacion,fechaObjetivo;
-    private boolean prioritaria;
-    private int progreso;
     private final int[] porcentajes = {0, 25, 50, 75, 100};
-    private static final String CURRENT_FRAGMENT_TAG = "currentFragmentTag";
 
 
     @Override
@@ -102,18 +88,19 @@ public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.
 
 
     public void volver() {
-        titulo=compartirViewModel.getTitulo().getValue();
-        descripcion=compartirViewModel.getDescripcion().getValue();
-        fechaCreacion=compartirViewModel.getFechaCreacion().getValue();
-        fechaObjetivo=compartirViewModel.getFechaObjetivo().getValue();
+        String titulo = compartirViewModel.getTitulo().getValue();
+        String descripcion = compartirViewModel.getDescripcion().getValue();
+        String fechaCreacion = compartirViewModel.getFechaCreacion().getValue();
+        String fechaObjetivo = compartirViewModel.getFechaObjetivo().getValue();
+        boolean prioritaria;
         if(compartirViewModel.getPrioritarias().getValue()==null){
-            prioritaria=false;
+            prioritaria =false;
         }else{
-            prioritaria=compartirViewModel.getPrioritarias().getValue();
+            prioritaria =compartirViewModel.getPrioritarias().getValue();
         }
-        progreso=porcentajes[compartirViewModel.getProgreso().getValue()];
+        int progreso = porcentajes[compartirViewModel.getProgreso().getValue()];
 
-        Tarea tarea=new Tarea(titulo,descripcion,progreso,fechaCreacion,fechaObjetivo,prioritaria);
+        Tarea tarea=new Tarea(titulo, descripcion, progreso, fechaCreacion, fechaObjetivo, prioritaria);
         Intent intentVolver = new Intent();
         intentVolver.putExtra("Resultado", tarea);
         setResult(RESULT_OK, intentVolver);

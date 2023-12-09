@@ -1,17 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.TrassTarea" parent="Theme.Material3.Light">
-        <item name="colorPrimary">#DF740F</item>
-        <item name="colorPrimaryDark">#FF9800</item>
-        <item name="colorPrimaryVariant">#000000</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">#E91E63</item>
-        <item name="colorSecondaryVariant">#673AB7</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+    <style name="Theme.TrassTarea" parent="Theme.MaterialComponents.Light">
+        <!-- Color de la barra de estado (si es diferente al color primario) -->
+        <item name="android:statusBarColor">@color/old_paper_primary_dark</item>
+
+        <!-- Color de la barra de herramientas (Toolbar) -->
+        <item name="colorPrimary">@color/old_paper_primary</item>
+        <item name="colorPrimaryDark">@color/old_paper_primary_dark</item>
+
+        <!-- Color del fondo de la actividad -->
+        <item name="android:windowBackground">@color/old_paper_background</item>
+
+        <!-- Color del texto en la barra de herramientas -->
+        <item name="android:textColorPrimary">#000000</item>
+
+        <!-- Color del texto en la barra de herramientas cuando está desactivado -->
+        <item name="android:textColorSecondary">@color/old_paper_text_secondary</item>
+
+        <!-- Color de acento utilizado por algunos controles y widgets -->
+        <item name="colorAccent">@color/old_paper_accent</item>
+
     </style>
 
-    <style name="Theme.TrassTarea" parent="Base.Theme.TrassTarea" />
+
+
 </resources>

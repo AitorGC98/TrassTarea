@@ -17,7 +17,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:boxStrokeColor="@android:color/darker_gray">
 
 
         <com.google.android.material.textfield.TextInputEditText
@@ -93,15 +94,18 @@
 
     <Button
         android:id="@+id/btn_siguiente"
-        android:layout_width="110dp"
-        android:layout_height="56dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="266dp"
         android:layout_marginEnd="55dp"
         android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/boton"
         android:text="@string/btn_siguiente"
+        android:textColor="@color/white"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.519"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chb_prioritaria" />
 

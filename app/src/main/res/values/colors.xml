@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Colores para el tema OldPaper -->
+    <color name="old_paper_primary">#3E2723</color> <!-- Barra de herramientas -->
+    <color name="old_paper_primary_dark">#3E2723</color> <!-- Barra de estado -->
+    <color name="old_paper_background">#FFEFEBE3</color> <!-- Fondo de la actividad -->
+    <color name="old_paper_text_primary">#FFFFFF</color> <!-- Texto en la barra de herramientas -->
+    <color name="old_paper_text_secondary">#BDBDBD</color> <!-- Texto en la barra de herramientas desactivado -->
+    <color name="old_paper_accent">#795548</color> <!-- Color de acento -->
+
+    <!-- Colores para la versión oscura del tema -->
+    <color name="dark_paper_primary">#3E2723</color>
+    <color name="dark_paper_primary_dark">#000000</color>
+    <color name="dark_paper_background">#424242</color>
+    <color name="dark_paper_text_secondary">#757575</color>
+    <color name="dark_paper_accent">#FFC107</color>
+
+    <!-- Otros colores que puedes necesitar -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="boton">#795548</color>
+    <color name="holo_light_blue">#DFEFEF</color>
+    <color name="gris">#4E4E4E</color>
+    <color name="button_dark">#CCCCCC</color>
 </resources>

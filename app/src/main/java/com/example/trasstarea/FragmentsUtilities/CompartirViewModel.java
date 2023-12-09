@@ -14,14 +14,11 @@ public class CompartirViewModel extends ViewModel {
     private final MutableLiveData<Boolean> prioritarias = new MutableLiveData<>();
 
     public void setTitulo(String nomb) {
-        Log.d("COMPARTIRVIEWMODEL", "setTitulo: " + titulo.getValue());
-
-        titulo.setValue(nomb);
+       titulo.setValue(nomb);
     }
 
     public MutableLiveData<String> getTitulo() {
 
-        Log.d("COMPARTIRVIEWMODEL", "getTitulo: " + titulo.getValue());
         return titulo;
     }
 

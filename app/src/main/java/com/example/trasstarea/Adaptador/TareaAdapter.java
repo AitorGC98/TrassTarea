@@ -1,13 +1,17 @@
 package com.example.trasstarea.Adaptador;
 
-import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
-import android.app.Activity;
+
+
+
+import static android.provider.Settings.System.getString;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -18,29 +22,21 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.trasstarea.Datos.Tarea;
-import com.example.trasstarea.EditarTareaActivity;
-import com.example.trasstarea.ListadoTareasActivity;
 import com.example.trasstarea.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHolder>{
-    private ArrayList<Tarea> datos;
+    private final ArrayList<Tarea> datos;
     private boolean mostrarSoloPrioritarias;
     private OnDataChangeListener onDataChangeListener;
     Context contexto;
-    private TextView tvLista;
 
     public TareaAdapter(Context contexto,ArrayList<Tarea> datos) {
         this.datos = datos;
@@ -80,8 +76,7 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
     @Override
     public TareaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitemtarea,parent,false);
-        TareaViewHolder tarea = new TareaViewHolder(item);
-        return tarea;
+        return new TareaViewHolder(item);
     }
 
     @Override
@@ -123,9 +118,11 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
 
     public class TareaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
 
-        private TextView tarea,fecha,dias;
-        private ImageView prioritaria;
-        private ProgressBar progreso;
+        private final TextView tarea;
+        private final TextView fecha;
+        private final TextView dias;
+        private final ImageView prioritaria;
+        private final ProgressBar progreso;
 
 
         //Método constructor
@@ -178,7 +175,7 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             if (position >= 0 && position < datos.size()) {
                 datos.remove(position);
                 notifyItemRemoved(position);
-                showToast("Tarea borrada");
+                showToast();
                 if (onDataChangeListener != null) {
                     onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
                 }
@@ -192,18 +189,19 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
 
             // Crea un cuadro de diálogo
             AlertDialog.Builder builder = new AlertDialog.Builder(contexto);
-            builder.setTitle("Descripción de la tarea");
+            builder.setTitle(contexto.getString(R.string.descripcion_tarea));
             builder.setMessage(tarea.getDescripcion());
-            builder.setPositiveButton("Aceptar", null);  // Puedes agregar botones adicionales según sea necesario
+            builder.setPositiveButton(contexto.getString(R.string.boton_aceptar), null);
+
             builder.show();
         }
 
-        private void showToast(String message) {
-            Toast.makeText(itemView.getContext(), message, Toast.LENGTH_SHORT).show();
+        private void showToast() {
+            Toast.makeText(itemView.getContext(), contexto.getString(R.string.tarea_borrada), Toast.LENGTH_SHORT).show();
         }
         public void bindTarea(Tarea t) {
             tarea.setText(t.getTitulo());
-            SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
             fecha.setText(formatoFecha.format(t.getFechaCreacion()));
 
             int diasRestantes = t.getDiasRestantes();
@@ -236,10 +234,10 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             }
 
             if (t.isPrioritario()) {
-                prioritaria.setImageResource(R.drawable.baseline_stars_24);
+                prioritaria.setImageResource(R.drawable.baseline_star_24);
                 tarea.setTypeface(null, Typeface.BOLD);
             } else {
-                prioritaria.setImageResource(R.drawable.baseline_stars_black);
+                prioritaria.setImageResource(R.drawable.baseline_star_outline_24);
             }
             progreso.setProgress(t.getProgreso());
 

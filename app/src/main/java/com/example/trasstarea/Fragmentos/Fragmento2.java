@@ -19,16 +19,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.trasstarea.FragmentsUtilities.CompartirViewModel;
-import com.example.trasstarea.CrearTareaActivity;
 import com.example.trasstarea.R;
 
 public class Fragmento2 extends Fragment {
 
-    Fragmento1 fragmentoUno=new Fragmento1();
     private EditText etmDescripcion;
     private CompartirViewModel compartirViewModel;
-    private Button btnVolver,btnGuardar;
-    private String descripcion;
 
     public interface ComunicarFragmento2{
         void onBotonGuardar();
@@ -58,11 +54,9 @@ public class Fragmento2 extends Fragment {
 
         View fragmento2 =inflater.inflate(R.layout.fragment_fragmento2, container, false);
 
-        btnVolver=fragmento2.findViewById(R.id.btn_volver);
-        btnVolver.setOnClickListener(view ->{
-            comunicador2.onBotonIr1Clicked();
-        });
-        btnGuardar=fragmento2.findViewById(R.id.btn_guardar);
+        Button btnVolver = fragmento2.findViewById(R.id.btn_volver);
+        btnVolver.setOnClickListener(view -> comunicador2.onBotonIr1Clicked());
+        Button btnGuardar = fragmento2.findViewById(R.id.btn_guardar);
         btnGuardar.setOnClickListener((view ->{
             if(TextUtils.isEmpty(etmDescripcion.getText())){
                 Toast.makeText(requireContext(), "Por favor, complete la descripción", Toast.LENGTH_LONG).show();
@@ -103,7 +97,7 @@ public class Fragmento2 extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         //Restaurar el texto en el EditText
         if(savedInstanceState!=null) {
-            descripcion = savedInstanceState.getString("descripcion", "");
+            String descripcion = savedInstanceState.getString("descripcion", "");
             compartirViewModel.setDescripcion(descripcion);
 
 

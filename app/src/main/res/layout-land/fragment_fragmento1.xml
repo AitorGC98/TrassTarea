@@ -17,7 +17,8 @@
         app:layout_constraintEnd_toStartOf="@+id/til_fechaObjetivo"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:boxStrokeColor="@android:color/darker_gray">
 
 
         <com.google.android.material.textfield.TextInputEditText
@@ -77,7 +78,8 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/til_fechaCreacion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/til_fechaCreacion" />
+        app:layout_constraintStart_toEndOf="@+id/til_fechaCreacion"
+        />
 
     <CheckBox
         android:id="@+id/chb_prioritaria"
@@ -92,9 +94,12 @@
 
     <Button
         android:id="@+id/btn_siguiente"
-        android:layout_width="110dp"
-        android:layout_height="56dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/boton"
         android:text="@string/btn_siguiente"
+        android:textColor="@color/white"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/sp_progreso"
         app:layout_constraintHorizontal_bias="1.0"

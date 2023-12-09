@@ -1,8 +1,8 @@
 package com.example.trasstarea;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,14 +23,9 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
     Fragmento2 fragmentoDos=new Fragmento2();
     private FragmentManager fragmentManager;
     CompartirViewModel compartirViewModel;
-    int posicion;
-    private Bundle bundle;
-    private String titulo,descripcion,fechaCreacion,fechaObjetivo;
-    private boolean prioritaria;
-    private int progreso;
     private final int[] porcentajes = {0, 25, 50, 75, 100};
-    private static final String CURRENT_FRAGMENT_TAG = "currentFragmentTag";
     private Tarea tarea;
+    @SuppressLint("SimpleDateFormat")
     SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
 
     @Override
@@ -38,10 +33,10 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editar_tarea);
 
-        bundle = getIntent().getExtras();
+        Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
              tarea = bundle.getParcelable("objeto");
-            int posicion = bundle.getInt("posicion");
+
         }
 
         fragmentManager = getSupportFragmentManager();
@@ -64,8 +59,6 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
             while (i < 5) {
                 if (tarea.getProgreso() == porcentajes[i]) {
                     compartirViewModel.setProgreso(i);
-                    Log.d("PROGRESOOO", "progreso tarea: " + tarea.getProgreso());
-                    Log.d("PROGRESOOO", "porcentaje: " +porcentajes[i]);
                     coincidenciaEncontrada = true;
                 }
                 i++;
@@ -127,24 +120,26 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
 
 
     public void volver() {
-        titulo=compartirViewModel.getTitulo().getValue();
-        descripcion=compartirViewModel.getDescripcion().getValue();
+        String titulo = compartirViewModel.getTitulo().getValue();
+        String descripcion = compartirViewModel.getDescripcion().getValue();
+        int progreso;
         if(compartirViewModel.getProgreso().getValue()==null){
-            progreso=porcentajes[0];
+            progreso =porcentajes[0];
         }else{
-            progreso=porcentajes[compartirViewModel.getProgreso().getValue()];
+            progreso =porcentajes[compartirViewModel.getProgreso().getValue()];
         }
 
-        fechaCreacion=compartirViewModel.getFechaCreacion().getValue();
-        fechaObjetivo=compartirViewModel.getFechaObjetivo().getValue();
+        String fechaCreacion = compartirViewModel.getFechaCreacion().getValue();
+        String fechaObjetivo = compartirViewModel.getFechaObjetivo().getValue();
+        boolean prioritaria;
         if(compartirViewModel.getPrioritarias().getValue()==null){
-            prioritaria=false;
+            prioritaria =false;
         }else{
-            prioritaria=compartirViewModel.getPrioritarias().getValue();
+            prioritaria =compartirViewModel.getPrioritarias().getValue();
         }
 
 
-        Tarea tarea=new Tarea(titulo,descripcion,progreso,fechaCreacion,fechaObjetivo,prioritaria);
+        Tarea tarea=new Tarea(titulo, descripcion, progreso, fechaCreacion, fechaObjetivo, prioritaria);
         Intent intentVolver = new Intent();
         intentVolver.putExtra("Resultado", tarea);
         setResult(RESULT_OK, intentVolver);

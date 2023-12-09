@@ -32,18 +32,15 @@ import com.example.trasstarea.FragmentsUtilities.CompartirViewModel;
 import com.example.trasstarea.R;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Objects;
+
 
 public class Fragmento1 extends Fragment {
 
-    private final String[] estados = {"No iniciada", "Iniciada", "Avanzada", "Casi finalizada", "Finalizada"};
     private CompartirViewModel compartirViewModel;
     private TextInputEditText etTitulo,etFechaCreacion,etFechaObjetivo;
     private Spinner spProgreso;
     private CheckBox chbPrioritaria;
-    private Button btnSiguiente;
-    private String titulo,fechaCre,fechaObj;
-    private boolean prioritaria;
-    private int progreso;
 
     public interface ComunicarFragmento1{
         void onBotonIrFragmento2();
@@ -80,10 +77,17 @@ public class Fragmento1 extends Fragment {
 
         View fragmento1 = inflater.inflate(R.layout.fragment_fragmento1, container, false);
 
-        btnSiguiente=fragmento1.findViewById(R.id.btn_siguiente);
+        String[] estados = new String[]{
+                getString(R.string.estado_no_iniciada),
+                getString(R.string.estado_iniciada),
+                getString(R.string.estado_avanzada),
+                getString(R.string.estado_casi_finalizada),
+                getString(R.string.estado_finalizada)};
+
+        Button btnSiguiente = fragmento1.findViewById(R.id.btn_siguiente);
         btnSiguiente.setOnClickListener(view ->{
             if(TextUtils.isEmpty(etTitulo.getText()) || TextUtils.isEmpty(etFechaCreacion.getText()) || TextUtils.isEmpty(etFechaObjetivo.getText())){
-                Toast.makeText(requireContext(), "Por favor, complete todos los campos", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), getString(R.string.aviso), Toast.LENGTH_LONG).show();
             }else{
                 comunicador1.onBotonIrFragmento2();
             }
@@ -94,16 +98,11 @@ public class Fragmento1 extends Fragment {
         etTitulo=fragmento1.findViewById(R.id.et_titulo);
         etFechaCreacion=fragmento1.findViewById(R.id.et_fechaCreacion);
         etFechaObjetivo=fragmento1.findViewById(R.id.et_fechaObjetivo);
-        etFechaCreacion.setOnClickListener(view ->{
-            showDatePickerDialog(1);
-        });
-        etFechaObjetivo.setOnClickListener(view ->{
-            showDatePickerDialog(0);
-        });
+        etFechaCreacion.setOnClickListener(view -> showDatePickerDialog(1));
+        etFechaObjetivo.setOnClickListener(view -> showDatePickerDialog(0));
 
         spProgreso=fragmento1.findViewById(R.id.sp_progreso);
         chbPrioritaria=fragmento1.findViewById(R.id.chb_prioritaria);
-        btnSiguiente=fragmento1.findViewById(R.id.btn_siguiente);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_item, estados);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -162,6 +161,7 @@ public class Fragmento1 extends Fragment {
     }
 
     private void showDatePickerDialog(int opcion) {
+
         DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
@@ -170,9 +170,11 @@ public class Fragmento1 extends Fragment {
                 if(opcion==1){
                     etFechaCreacion.setText(selectedDate);
                     compartirViewModel.setFechaCreacion(selectedDate);
+
                 }else{
                     etFechaObjetivo.setText(selectedDate);
                     compartirViewModel.setFechaObjetivo(selectedDate);
+
                 }
 
             }
@@ -186,12 +188,12 @@ public class Fragmento1 extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         //Restaurar el texto en el EditText
         if(savedInstanceState!=null) {
-            titulo = savedInstanceState.getString("titulo", "");
-            fechaCre = savedInstanceState.getString("fechaCre", "");
-            fechaObj = savedInstanceState.getString("fechaObj", "");
-            prioritaria = savedInstanceState.getBoolean("prioritaria", false);
-            progreso = savedInstanceState.getInt("progreso", 0);
-            Log.d("PROGRESO", "onSaveInstanceState - PROGRESO: " + progreso);
+            String titulo = savedInstanceState.getString("titulo", "");
+            String fechaCre = savedInstanceState.getString("fechaCre", "");
+            String fechaObj = savedInstanceState.getString("fechaObj", "");
+            boolean prioritaria = savedInstanceState.getBoolean("prioritaria", false);
+            int progreso = savedInstanceState.getInt("progreso", 0);
+
             compartirViewModel.setTitulo(titulo);
             compartirViewModel.setFechaCreacion(fechaCre);
             compartirViewModel.setFechaObjetivo(fechaObj);
@@ -206,12 +208,11 @@ public class Fragmento1 extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString("titulo", etTitulo.getText().toString());
-        outState.putString("fechaCre", etFechaCreacion.getText().toString());
-        outState.putString("fechaObj", etFechaObjetivo.getText().toString());
+        outState.putString("titulo", Objects.requireNonNull(etTitulo.getText()).toString());
+        outState.putString("fechaCre", Objects.requireNonNull(etFechaCreacion.getText()).toString());
+        outState.putString("fechaObj", Objects.requireNonNull(etFechaObjetivo.getText()).toString());
         outState.putBoolean("prioritaria", chbPrioritaria.isChecked());
         outState.putInt("progreso", spProgreso.getSelectedItemPosition());
-        Log.d("PROGRESO", "EL PRIMERO - PROGRESO: " + spProgreso.getSelectedItemPosition());
-        Log.d("Fragmento1", "onSaveInstanceState - Titulo: " + etTitulo.getText().toString());
+
     }
 }

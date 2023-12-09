@@ -1,5 +1,6 @@
 package com.example.trasstarea.Datos;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -13,11 +14,11 @@ import java.util.Objects;
 public class Tarea implements Parcelable {
     private String titulo;
     private String descripcion;
-    private int progreso,id;
+    private int progreso;
+    private final int id;
     private Date fechaCreacion;
     private Date fechaObjetio;
     private boolean prioritario;
-    private SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
 
     private static int contador;
     public Tarea(String titulo, String descripcion, int progreso, String fechaCreacion, String fechaObjetio,boolean prioritario) {
@@ -26,6 +27,7 @@ public class Tarea implements Parcelable {
         this.descripcion = descripcion;
         this.progreso = progreso;
         try {
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
             this.fechaCreacion = formatoFecha.parse(fechaCreacion);
             this.fechaObjetio = formatoFecha.parse(fechaObjetio);
         }catch (ParseException e){
@@ -116,9 +118,8 @@ public class Tarea implements Parcelable {
         long diferenciaMilisegundos = fechaObjetivo.getTimeInMillis() - fechaActual.getTimeInMillis();
 
         // Convierte la diferencia en milisegundos a días
-        int diasRestantes = (int) (diferenciaMilisegundos / (1000 * 60 * 60 * 24));
 
-        return diasRestantes;
+        return (int) (diferenciaMilisegundos / (1000 * 60 * 60 * 24));
     }
 
     @Override
