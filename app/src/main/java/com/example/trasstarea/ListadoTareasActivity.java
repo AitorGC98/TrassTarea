@@ -48,6 +48,7 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
             mostrarAcercaDe();
         }
 
+
         // Configurar el RecyclerView y su adaptador
         TareaAdapter adaptador = new TareaAdapter(this, datos);
         adaptador.setMostrarSoloPrioritarias(mostrarSoloPrioritarias); // mostramos aquellas que sean favoritas
@@ -121,11 +122,21 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
         menu.setGroupVisible(R.id.it_group_añadir,true);
         menu.setGroupVisible(R.id.it_group_favoritos,true);
         menu.setGroupVisible(R.id.it_group_menufinal,true);
+        MenuItem favoritosItem = menu.findItem(R.id.it_favoritos);
+
+        // Cambiar el ícono del elemento del menú según la variable mostrarSoloPrioritarias
+        if (mostrarSoloPrioritarias) {
+            favoritosItem.setIcon(android.R.drawable.btn_star_big_on);
+        } else {
+            favoritosItem.setIcon(android.R.drawable.btn_star_big_off);
+        }
         return super.onCreateOptionsMenu(menu);
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id=item.getItemId();
+
+
 
         //opcion de menu añadir tarea
         if (id == R.id.it_añadir) {
