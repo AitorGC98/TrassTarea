@@ -1,5 +1,7 @@
 package com.example.trasstarea;
 
+import static android.app.PendingIntent.getActivity;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -7,13 +9,18 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -21,44 +28,67 @@ import android.widget.Toast;
 
 import com.example.trasstarea.Adaptador.TareaAdapter;
 import com.example.trasstarea.Datos.Tarea;
+import com.example.trasstarea.basedatos.BaseDatos;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class ListadoTareasActivity extends AppCompatActivity implements TareaAdapter.OnDataChangeListener {
-    private ArrayList<Tarea> datos=new ArrayList<>();
+public class ListadoTareasActivity extends AppCompatActivity {
+    private List<Tarea> datos=new ArrayList<>();
     private RecyclerView rv;
     private TextView tvLista;
-    private boolean mostrarSoloPrioritarias=false,estadodialogo=false;
-    private int pos;
+    private boolean mostrarSoloPrioritarias=false,estadodialogo=false,hayprioritarias;
+    private int pos,numTareas;
+    private BaseDatos baseDatos;
+    private TareaAdapter adaptador;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listado_tareas);
 
+        baseDatos=BaseDatos.getInstance(getApplicationContext());
         if (savedInstanceState != null) {//si no es la primera vez que se ejecuta
-            datos = savedInstanceState.getParcelableArrayList("datos");
+
             mostrarSoloPrioritarias = savedInstanceState.getBoolean("mostrarSoloPrioritarias");
             estadodialogo=savedInstanceState.getBoolean("estadoDialogo");
-        } else {
-            init(); // Solo inicializa datos si no hay datos guardados en el Bundle
         }
         if(estadodialogo){
             mostrarAcercaDe();
         }
 
+        // Observa los cambios en la lista de tareas
+        /*
+        baseDatos.productoDAO().getAll().observe(this, new Observer<List<Tarea>>() {
+            @Override
+            public void onChanged(List<Tarea> tareas) {
+                // Actualiza el adaptador con la nueva lista de tareas
+                adaptador.setDatos(tareas);
+                adaptador.notifyDataSetChanged();
+                actualizarEstadoTextView();
+            }
+        });*/
 
-        // Configurar el RecyclerView y su adaptador
-        TareaAdapter adaptador = new TareaAdapter(this, datos);
-        adaptador.setMostrarSoloPrioritarias(mostrarSoloPrioritarias); // mostramos aquellas que sean favoritas
-        adaptador.setOnDataChangeListener(this); // Establece la actividad como escucha de cambios
+        adaptador = new TareaAdapter(this, datos);
+
 
         rv = findViewById(R.id.rv_lista);
         rv.setAdapter(adaptador);
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-
         tvLista = findViewById(R.id.tv_lista);
+
+        if(mostrarSoloPrioritarias){
+            mostrarPrioritarias();
+            actualizarEstadoTextView();
+        }else{
+            mostrarTodas();
+            actualizarEstadoTextView();
+        }
+
         actualizarEstadoTextView();
 
     }
@@ -68,7 +98,7 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
         super.onSaveInstanceState(outState);
 
         // GUARDAR DATOS Y ESTADO DEL ADAPTADOR
-        outState.putParcelableArrayList("datos", datos);
+        //outState.putParcelableArrayList("datos", datos);
         outState.putBoolean("estadoDialogo", estadodialogo);
         outState.putBoolean("mostrarSoloPrioritarias", mostrarSoloPrioritarias);
     }
@@ -85,9 +115,17 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
                         Intent intentDevuelto = result.getData();
                         assert intentDevuelto != null;
                         Tarea tarea = (Tarea) Objects.requireNonNull(intentDevuelto.getExtras()).get("Resultado");
-                        TareaAdapter adaptador = (TareaAdapter) rv.getAdapter();
+                        adaptador = (TareaAdapter) rv.getAdapter();
                         if(adaptador!=null){
-                            adaptador.agregarNuevaTarea(tarea);
+
+                            Executor executor = Executors.newSingleThreadExecutor();
+                            executor.execute(new InsertarTarea(tarea));
+                            try {
+                                Thread.sleep(250); // Espera 100 milisegundos
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            actualizarEstadoTextView();
                         }
                         Toast.makeText(getApplicationContext(), getString(R.string.tarea_guardada), Toast.LENGTH_LONG).show();
                     }
@@ -106,9 +144,14 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
                         Intent intentDevuelto = result.getData();
                         assert intentDevuelto != null;
                         Tarea tarea = (Tarea) Objects.requireNonNull(intentDevuelto.getExtras()).get("Resultado");
-                        TareaAdapter adaptador = (TareaAdapter) rv.getAdapter();
+                        adaptador = (TareaAdapter) rv.getAdapter();
                         if(adaptador!=null){
-                            adaptador.editarLista(tarea,pos);
+                            Log.d("ActualizarTarea", "Actualizando tarea: " + tarea.getTitulo());
+                            Log.d("Arriba ID", "Actualizando tarea: " + tarea.getId()); // Agrega un log
+                            Executor executor = Executors.newSingleThreadExecutor();
+                            executor.execute(new ActualizarTarea(tarea));
+                            adaptador.notifyDataSetChanged();
+
                         }
                         Toast.makeText(getApplicationContext(), getString(R.string.tarea_editada), Toast.LENGTH_LONG).show();
                     }
@@ -152,13 +195,14 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
 
             // Cambiar entre tareas prioritarias y todas las tareas
             mostrarSoloPrioritarias = !mostrarSoloPrioritarias;
-            adaptador.setMostrarSoloPrioritarias(mostrarSoloPrioritarias);
             actualizarEstadoTextView();
 
             if (mostrarSoloPrioritarias) {
                 item.setIcon(android.R.drawable.btn_star_big_on);
+                mostrarPrioritarias();
             } else {
                 item.setIcon(android.R.drawable.btn_star_big_off);
+                mostrarTodas();
             }
 
         //opcion de menu para acerca de
@@ -174,13 +218,6 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
         return super.onOptionsItemSelected(item);
     }
 
-    //metodo que recibe el objeto y la posicion del mismo en la lista
-    @Override
-    public void onTareaEdit(Tarea tarea, int posicion) {
-        irEditarTarea(tarea);
-        pos=posicion;
-    }
-
     //Metodo que llama al lanzador de editartarea
     public void irEditarTarea(Tarea tarea) {
         Intent intentIda = new Intent(this, EditarTareaActivity.class);
@@ -188,37 +225,124 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
         lanzadorEditar.launch(intentIda);
     }
 
+    public void mostrarPrioritarias(){
+        baseDatos.productoDAO().getTareasFavoritas().observe(this, new Observer<List<Tarea>>() {
+            @Override
+            public void onChanged(List<Tarea> tareas) {
+                datos=tareas;
+                adaptador.setDatos(datos);
+                adaptador.notifyDataSetChanged();
+                actualizarEstadoTextView();
+            }
+        });
+    }
+
+    public void mostrarTodas(){
+        baseDatos.productoDAO().getAll().observe(this, new Observer<List<Tarea>>() {
+            @Override
+            public void onChanged(List<Tarea> tareas) {
+                if(!mostrarSoloPrioritarias) {
+                    datos = tareas;
+                    adaptador.setDatos(datos);
+                    adaptador.notifyDataSetChanged();
+                    actualizarEstadoTextView();
+                }
+            }
+        });
+    }
+
 
     //metodo usado cada vez que un dato cambia, llama al metodo actualizar estado
-    @Override
+    /*@Override
     public void onDataChanged() {
         actualizarEstadoTextView();
     }
-
+*/
     //metodo que actualiza el estado de las tareas
     private void actualizarEstadoTextView() {
+        /*Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(new HayPrioritarias());
+        //Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(new HayTareas());
         if (mostrarSoloPrioritarias) {
-            if (hayTareasPrioritarias()) {
+            if (hayprioritarias) {
                 tvLista.setText(""); // Si hay tareas prioritarias, no mostrar mensaje
             } else {
                 tvLista.setText(getString(R.string.estado_tareas));
             }
         } else {
-            if (datos.isEmpty()) {
+            if (numTareas==0) {
                 tvLista.setText(getString(R.string.estado_tareas));
             } else {
                 tvLista.setText(""); // Limpiar el texto si hay tareas
             }
-        }
-    }
-//MEtodo que nos indica si hay tareas prioritarias
-    private boolean hayTareasPrioritarias() {
-        for (Tarea tarea : datos) {
-            if (tarea.isPrioritario()) {
-                return true;
+        }*/
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                HayPrioritarias hayPrioritarias = new HayPrioritarias();
+                HayTareas hayTareas = new HayTareas();
+
+                hayPrioritarias.run();
+                hayTareas.run();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mostrarSoloPrioritarias) {
+                            if (hayprioritarias) {
+                                tvLista.setText(""); // Si hay tareas prioritarias, no mostrar mensaje
+                            } else {
+                                tvLista.setText(getString(R.string.estado_tareas));
+                            }
+                        } else {
+                            if (numTareas == 0) {
+                                tvLista.setText(getString(R.string.estado_tareas));
+                            } else {
+                                tvLista.setText(""); // Limpiar el texto si hay tareas
+                            }
+                        }
+                    }
+                });
             }
+        });
+    }
+
+
+    //por el usuario.
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int posicion = -1;
+        try {
+            posicion = adaptador.getPosicion();
+        } catch (Exception e) {
+            return super.onContextItemSelected(item);
         }
-        return false;
+        if(item.getItemId() == R.id.menu_borrar){
+            //Se recupera el objeto a borrar desde la lista del adaptador.
+            Tarea tarea = adaptador.getDatos().get(posicion);
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(new BorrarTarea(tarea));
+            if(mostrarSoloPrioritarias){
+                mostrarPrioritarias();
+            }
+            // Espera un breve momento para que el RecyclerView se actualice
+            try {
+                Thread.sleep(250); // Espera 100 milisegundos
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            actualizarEstadoTextView();
+        }else if(item.getItemId()==R.id.menu_Editar){
+            Tarea tarea=adaptador.getDatos().get(posicion);
+
+            irEditarTarea(tarea);
+        }else if(item.getItemId()==R.id.menu_descripcion){
+            Tarea tarea=adaptador.getDatos().get(posicion);
+            mostrarDescripcion(tarea);
+        }
+        return super.onContextItemSelected(item);
     }
 
     private void mostrarAcercaDe() {
@@ -248,25 +372,90 @@ public class ListadoTareasActivity extends AppCompatActivity implements TareaAda
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-    //Inciador de la lista
-    private void init(){
 
-            datos.add(new Tarea("PSP", "realizar una tarea de psp", 23, "12/03/2023", "12/11/2023", true));
-            datos.add(new Tarea("Moviles", "realizar una tarea de para moviles", 50, "20/07/2023", "23/12/2023", true));
-            datos.add(new Tarea("Empresas", "realizar una tarea para empresas", 10, "30/03/2023", "30/12/2023", true));
-            datos.add(new Tarea("Acceso a datos", "realizar una tarea de acceso a datos", 78, "02/11/2023", "01/11/2024", true));
-            datos.add(new Tarea("Desarrollo de interfaces", "realizar una tarea de desarrollo de interfaces", 0, "19/08/2023", "25/11/2023", true));
-            datos.add(new Tarea("Sistemas de gestion", "realizar una tarea de sistemas de gestion", 100, "23/11/2023", "12/12/2023", true));
-            datos.add(new Tarea("tarea de limpieza", "limpiar el cuarto", 89, "11/10/2023", "12/01/2024", false));
-            datos.add(new Tarea("Ir a comprar", "realizar una compra", 50, "12/11/2023", "30/11/2023", false));
-            datos.add(new Tarea("Hacer un pedido", "hacer un pedido", 8, "12/11/2023", "02/11/2023", true));
-            datos.add(new Tarea("Hacer la comida", "hacer la comida", 100, "12/04/2023", "02/12/2023", false));
-            datos.add(new Tarea("Completar trabajo", "Completar trabajo final", 45, "23/09/2023", "02/02/2024", false));
-            datos.add(new Tarea("Desarrollo Web", "Crear un sitio web responsive", 25, "02/04/2023", "20/04/2023", false));
-            datos.add(new Tarea("Redes de Computadoras", "Configurar una red local", 30, "10/05/2023", "30/05/2023", true));
-            datos.add(new Tarea("Inteligencia Artificial", "Implementar un algoritmo de aprendizaje supervisado", 40, "01/06/2023", "15/07/2023", false));
-            datos.add(new Tarea("Sistemas Operativos", "Estudiar el manejo de procesos", 20, "08/04/2023", "01/05/2023", false));
-            datos.add(new Tarea("Seguridad Informática", "Realizar un análisis de vulnerabilidades", 15, "18/06/2023", "25/06/2023", true));
+    private void mostrarDescripcion(Tarea tarea) {
+        // Crear un cuadro de diálogo para Acerca de
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.menu_descripcion));
 
+        // Construir el contenido del cuadro de diálogo
+        String descripcionTexto = tarea.getDescripcion();
+
+        builder.setMessage(descripcionTexto);
+        estadodialogo=true;
+
+        // Agregar un botón "Aceptar" al cuadro de diálogo
+        builder.setPositiveButton(getString(R.string.boton_aceptar), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // Cerrar el cuadro de diálogo al hacer clic en "Aceptar"
+                estadodialogo=false;
+                dialog.dismiss();
+            }
+        });
+
+        // Mostrar el cuadro de diálogo
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
+
+    class InsertarTarea implements Runnable {
+
+        private Tarea tarea;
+
+        public InsertarTarea(Tarea tarea) {
+            this.tarea = tarea;
+        }
+
+        @Override
+        public void run() {
+            baseDatos.productoDAO().insertAll(tarea);
+        }
+    }
+    class ActualizarTarea implements Runnable {
+
+        private Tarea tarea;
+
+        public ActualizarTarea(Tarea tarea) {
+            this.tarea = tarea;
+        }
+
+        @Override
+        public void run() {
+
+            baseDatos.productoDAO().update(tarea);
+        }
+    }
+
+    class BorrarTarea implements Runnable {
+
+        private Tarea tarea;
+
+        public BorrarTarea(Tarea tarea) {
+            this.tarea = tarea;
+        }
+
+        @Override
+        public void run() {
+            baseDatos.productoDAO().delete(tarea);
+
+        }
+    }
+
+    class HayPrioritarias implements Runnable {
+
+        @Override
+        public void run() {
+            hayprioritarias= baseDatos.productoDAO().hayTareasPrioritarias();
+
+        }
+    }
+    class HayTareas implements Runnable {
+
+        @Override
+        public void run() {
+            numTareas= baseDatos.productoDAO().contarTareas();
+
+        }
+    }
+
 }

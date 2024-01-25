@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -25,53 +26,46 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.example.trasstarea.Datos.Tarea;
+import com.example.trasstarea.ListadoTareasActivity;
 import com.example.trasstarea.R;
+import com.example.trasstarea.basedatos.BaseDatos;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHolder>{
-    private final ArrayList<Tarea> datos;
-    private boolean mostrarSoloPrioritarias;
-    private OnDataChangeListener onDataChangeListener;
+    private List<Tarea> datos;
     Context contexto;
+    private int posicion;
 
-    public TareaAdapter(Context contexto,ArrayList<Tarea> datos) {
+    public TareaAdapter(Context contexto,List<Tarea> datos) {
         this.datos = datos;
         this.contexto = contexto;
     }
-    public void setMostrarSoloPrioritarias(boolean mostrarSoloPrioritarias) {
-        this.mostrarSoloPrioritarias = mostrarSoloPrioritarias;
-        notifyDataSetChanged(); // Actualiza la vista cuando cambia el filtro
+
+    public List<Tarea> getDatos() {
+        return datos;
     }
 
-    public void ocultarVista(TareaViewHolder holder) {
-        holder.itemView.setVisibility(View.GONE);
-        holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
-        if (onDataChangeListener != null) {
-            onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
-        }
+    public void setDatos(List<Tarea> datos) {
+        this.datos = datos;
+        notifyDataSetChanged();
     }
 
-    public void agregarNuevaTarea(Tarea nuevaTarea) {
-        datos.add(nuevaTarea);
-        notifyItemInserted(datos.size()-1); // Notifica al adaptador que se ha insertado un nuevo ítem
-        if (onDataChangeListener != null) {
-            onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
-        }
+    public int getPosicion() {
+        return posicion;
     }
-    public void mostrarTarea(TareaViewHolder holder, Tarea tarea) {
-        holder.itemView.setVisibility(View.VISIBLE);
-        holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-         holder.bindTarea(tarea);
-        if (onDataChangeListener != null) {
-            onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
-        }
+
+    public void setPosicion(int posicion) {
+        this.posicion = posicion;
     }
+
     @NonNull
     @Override
     public TareaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -81,39 +75,20 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
 
     @Override
     public void onBindViewHolder(@NonNull TareaViewHolder holder, int position) {
-        Tarea tarea = datos.get(position);
-        if (mostrarSoloPrioritarias && !tarea.isPrioritario()) {
-            // Si se debe mostrar solo tareas prioritarias y la tarea no es prioritaria, oculta el ViewHolder
-            ocultarVista(holder);
-        } else {
-            // Muestra la tarea si no es necesario aplicar el filtro
-            mostrarTarea(holder, tarea);
-        }
-    }
-    public void setOnDataChangeListener(OnDataChangeListener listener) {
-        this.onDataChangeListener = listener;
-
+        ((TareaViewHolder) holder).bindTarea(datos.get(position));
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                setPosicion(holder.getAdapterPosition());
+                return false;
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         //Devolvemos el tamaño de array de datos de Capitales
         return datos.size();
-    }
-
-    public interface OnDataChangeListener {
-        void onDataChanged();
-        void onTareaEdit(Tarea tarea,int posicion);
-
-    }
-    public void editarLista(Tarea tareaEditada, int posicion) {
-        if (posicion >= 0 && posicion < datos.size()) {
-            datos.set(posicion, tareaEditada);
-            notifyItemChanged(posicion); // Notifica al adaptador que el ítem en la posición dada ha cambiado
-            if (onDataChangeListener != null) {
-                onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
-            }
-        }
     }
 
     public class TareaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
@@ -142,45 +117,8 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             // Obtén el inflater del contexto
             MenuInflater inflater = new MenuInflater(contexto);
             inflater.inflate(R.menu.menu_contextual, menu);
-
-            // Agrega listeners para cada elemento del menú
-            menu.findItem(R.id.menu_descripcion).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                    mostrarDescripcionDialog();
-                    return true;
-                }
-            });
-
-            menu.findItem(R.id.menu_Editar).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                    onDataChangeListener.onTareaEdit(datos.get(getAdapterPosition()),getAdapterPosition());
-                    return true;
-                }
-            });
-
-            menu.findItem(R.id.menu_borrar).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                    eliminarTarea(getAdapterPosition());
-
-                    return true;
-                }
-            });
         }
 
-
-        public void eliminarTarea(int position) {
-            if (position >= 0 && position < datos.size()) {
-                datos.remove(position);
-                notifyItemRemoved(position);
-                showToast();
-                if (onDataChangeListener != null) {
-                    onDataChangeListener.onDataChanged(); // Notifica a la actividad que los datos han cambiado
-                }
-            }
-        }
 
         // Método para mostrar el cuadro de diálogo de descripción
         private void mostrarDescripcionDialog() {

@@ -24,7 +24,7 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
     private FragmentManager fragmentManager;
     CompartirViewModel compartirViewModel;
     private final int[] porcentajes = {0, 25, 50, 75, 100};
-    private Tarea tarea;
+    private Tarea tareaVM;
     @SuppressLint("SimpleDateFormat")
     SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -35,7 +35,7 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-             tarea = bundle.getParcelable("objeto");
+             tareaVM = bundle.getParcelable("objeto");
 
         }
 
@@ -46,18 +46,18 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
 
 
         if (savedInstanceState == null) {//si es la primera vez que se crea la actividad mostramos el fragmento 1
-            compartirViewModel.setTitulo(tarea.getTitulo());
-            compartirViewModel.setDescripcion(tarea.getDescripcion());
-            compartirViewModel.setPrioritarias(tarea.isPrioritario());
-            compartirViewModel.setFechaCreacion(formatoFecha.format(tarea.getFechaCreacion()));
-            compartirViewModel.setFechaObjetivo(formatoFecha.format(tarea.getFechaObjetio()));
+            compartirViewModel.setTitulo(tareaVM.getTitulo());
+            compartirViewModel.setDescripcion(tareaVM.getDescripcion());
+            compartirViewModel.setPrioritarias(tareaVM.isPrioritario());
+            compartirViewModel.setFechaCreacion(formatoFecha.format(tareaVM.getFechaCreacion()));
+            compartirViewModel.setFechaObjetivo(formatoFecha.format(tareaVM.getFechaObjetio()));
 
 
             int i = 0;
             boolean coincidenciaEncontrada = false;
 
             while (i < 5) {
-                if (tarea.getProgreso() == porcentajes[i]) {
+                if (tareaVM.getProgreso() == porcentajes[i]) {
                     compartirViewModel.setProgreso(i);
                     coincidenciaEncontrada = true;
                 }
@@ -140,6 +140,7 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
 
 
         Tarea tarea=new Tarea(titulo, descripcion, progreso, fechaCreacion, fechaObjetivo, prioritaria);
+        tarea.setId(tareaVM.getId());
         Intent intentVolver = new Intent();
         intentVolver.putExtra("Resultado", tarea);
         setResult(RESULT_OK, intentVolver);
