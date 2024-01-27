@@ -28,6 +28,7 @@
     <string name="autor">Author</string>
     <string name="descripcion_tarea">Task Description</string>
 
+    <!-- Strings para estados -->
     <string name="estado_no_iniciada">Not Started</string>
     <string name="estado_iniciada">Started</string>
     <string name="estado_avanzada">Advanced</string>
@@ -46,4 +47,18 @@
     <string name="salir">See you soon</string>
 
     <string name="aviso">Please, complete all fields</string>
+    <string name="borrar_tarea">Do you want to delete the task </string>
+
+    <!-- Strings para estadisticas -->
+    <string name="estadisticas">Statistics</string>
+    <string name="promedio_progreso">The average progress of the tasks is </string>
+    <string name="tareas_estado">Number of completed tasks by status:</string>
+    <string name="fecha_promedio">The average target date is</string>
+    <string name="error_fecha">Error in the date format</string>
+    <string name="fecha_empieza">Tasks started this month</string>
+    <string name="fecha_termina">Tasks ending this month</string>
+    <string name="tarea_caducada">Expired Tasks</string>
+    <string name="tarea_prioritaria">Priority Tasks</string>
+
+
 </resources>

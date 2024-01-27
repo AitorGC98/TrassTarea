@@ -61,18 +61,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
             mostrarAcercaDe();
         }
 
-        // Observa los cambios en la lista de tareas
-        /*
-        baseDatos.productoDAO().getAll().observe(this, new Observer<List<Tarea>>() {
-            @Override
-            public void onChanged(List<Tarea> tareas) {
-                // Actualiza el adaptador con la nueva lista de tareas
-                adaptador.setDatos(tareas);
-                adaptador.notifyDataSetChanged();
-                actualizarEstadoTextView();
-            }
-        });*/
-
         adaptador = new TareaAdapter(this, datos);
 
 
@@ -120,11 +108,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
 
                             Executor executor = Executors.newSingleThreadExecutor();
                             executor.execute(new InsertarTarea(tarea));
-                            try {
-                                Thread.sleep(250); // Espera 100 milisegundos
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+
                             actualizarEstadoTextView();
                         }
                         Toast.makeText(getApplicationContext(), getString(R.string.tarea_guardada), Toast.LENGTH_LONG).show();
@@ -213,6 +197,9 @@ public class ListadoTareasActivity extends AppCompatActivity {
         } else if (id == R.id.it_salir) {
             Toast.makeText(getApplicationContext(), getString(R.string.salir), Toast.LENGTH_LONG).show();
             finishAffinity();
+        }else if(id==R.id.it_estadisticas){
+            Intent intent = new Intent(ListadoTareasActivity.this, EstadisticasActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -252,31 +239,9 @@ public class ListadoTareasActivity extends AppCompatActivity {
     }
 
 
-    //metodo usado cada vez que un dato cambia, llama al metodo actualizar estado
-    /*@Override
-    public void onDataChanged() {
-        actualizarEstadoTextView();
-    }
-*/
     //metodo que actualiza el estado de las tareas
     private void actualizarEstadoTextView() {
-        /*Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(new HayPrioritarias());
-        //Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(new HayTareas());
-        if (mostrarSoloPrioritarias) {
-            if (hayprioritarias) {
-                tvLista.setText(""); // Si hay tareas prioritarias, no mostrar mensaje
-            } else {
-                tvLista.setText(getString(R.string.estado_tareas));
-            }
-        } else {
-            if (numTareas==0) {
-                tvLista.setText(getString(R.string.estado_tareas));
-            } else {
-                tvLista.setText(""); // Limpiar el texto si hay tareas
-            }
-        }*/
+
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(new Runnable() {
             @Override
@@ -320,20 +285,34 @@ public class ListadoTareasActivity extends AppCompatActivity {
             return super.onContextItemSelected(item);
         }
         if(item.getItemId() == R.id.menu_borrar){
-            //Se recupera el objeto a borrar desde la lista del adaptador.
+            //toamamos el objeto que estamos pulsando
             Tarea tarea = adaptador.getDatos().get(posicion);
-            Executor executor = Executors.newSingleThreadExecutor();
-            executor.execute(new BorrarTarea(tarea));
-            if(mostrarSoloPrioritarias){
-                mostrarPrioritarias();
-            }
-            // Espera un breve momento para que el RecyclerView se actualice
-            try {
-                Thread.sleep(250); // Espera 100 milisegundos
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            actualizarEstadoTextView();
+            //Se recupera el objeto a borrar desde la lista del adaptador.
+            
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getString(R.string.borrar_tarea)+tarea.getTitulo()+"?")
+                    .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Acción a realizar si la respuesta es Sí
+                            Executor executor = Executors.newSingleThreadExecutor();
+                            executor.execute(new BorrarTarea(tarea));
+                            if(mostrarSoloPrioritarias){
+                                mostrarPrioritarias();
+                            }
+                            // Espera un breve momento para que el RecyclerView se actualice
+                            actualizarEstadoTextView();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Acción a realizar si la respuesta es No
+                        }
+                    });
+
+            // Mostrar el cuadro de diálogo
+            builder.create().show();
+
+
         }else if(item.getItemId()==R.id.menu_Editar){
             Tarea tarea=adaptador.getDatos().get(posicion);
 
@@ -437,7 +416,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
         @Override
         public void run() {
             baseDatos.productoDAO().delete(tarea);
-
         }
     }
 

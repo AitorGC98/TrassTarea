@@ -28,6 +28,7 @@
     <string name="autor">Autor/a</string>
     <string name="descripcion_tarea">Descripción de la tarea</string>
 
+    <!-- Strings para estados -->
     <string name="estado_no_iniciada">No iniciada</string>
     <string name="estado_iniciada">Iniciada</string>
     <string name="estado_avanzada">Avanzada</string>
@@ -45,4 +46,16 @@
 
     <string name="salir">Hasta Pronto</string>
     <string name="aviso">Por favor, complete todos los campos</string>
+    <string name="borrar_tarea">¿Quieres borrar la tarea </string>
+
+    <!-- Strings para estadisticas -->
+    <string name="estadisticas">Estadísticas</string>
+    <string name="promedio_progreso">El promedio de progreso de las tareas es del </string>
+    <string name="tareas_estado">Cantidad de tareas acabadas por estado:</string>
+    <string name="fecha_promedio">La fecha objetivo promedio es</string>
+    <string name="error_fecha">Error en el formato de la fecha</string>
+    <string name="fecha_empieza">Tareas empezadas este mes</string>
+    <string name="fecha_termina">Tareas que finalizan este mes</string>
+    <string name="tarea_caducada">Tareas caducadas</string>
+    <string name="tarea_prioritaria">Tareas Prioritarias</string>
 </resources>
