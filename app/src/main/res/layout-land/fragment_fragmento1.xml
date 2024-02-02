@@ -13,12 +13,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/et_titulo"
+        app:boxStrokeColor="@android:color/darker_gray"
         app:layout_constraintBottom_toTopOf="@+id/til_fechaCreacion"
         app:layout_constraintEnd_toStartOf="@+id/til_fechaObjetivo"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:boxStrokeColor="@android:color/darker_gray">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <com.google.android.material.textfield.TextInputEditText
@@ -43,11 +43,10 @@
             android:id="@+id/et_fechaCreacion"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:focusable="false"
             android:clickable="true"
-            android:maxLines="1"
-            />
+            android:focusable="false"
+            android:inputType="date"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -65,10 +64,10 @@
             android:id="@+id/et_fechaObjetivo"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:focusable="false"
             android:clickable="true"
-            android:maxLines="1"/>
+            android:focusable="false"
+            android:inputType="date"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Spinner
@@ -78,33 +77,51 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/til_fechaCreacion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/til_fechaCreacion"
-        />
+        app:layout_constraintStart_toEndOf="@+id/til_fechaCreacion" />
 
     <CheckBox
         android:id="@+id/chb_prioritaria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="180dp"
         android:text="@string/tv_prioritaria"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/til_fechaCreacion"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/til_fechaCreacion"
+        app:layout_constraintEnd_toStartOf="@+id/btnCancelar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/til_fechaCreacion" />
 
     <Button
         android:id="@+id/btn_siguiente"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
         android:backgroundTint="@color/boton"
         android:text="@string/btn_siguiente"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/sp_progreso"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnCancelar"
         app:layout_constraintStart_toStartOf="@+id/sp_progreso"
         app:layout_constraintTop_toBottomOf="@+id/sp_progreso"
         app:layout_constraintVertical_bias="0.551" />
+
+    <Button
+        android:id="@+id/btnCancelar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="63dp"
+        android:layout_marginBottom="60dp"
+        android:backgroundTint="@color/boton"
+        android:text="@string/cancelar"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_siguiente"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chb_prioritaria"
+        app:layout_constraintTop_toBottomOf="@+id/sp_progreso" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

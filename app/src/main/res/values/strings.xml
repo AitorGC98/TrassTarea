@@ -10,7 +10,7 @@
     <string name="tv_dias">días</string>
     <string name="añadir_tarea">Añadir Tarea</string>
 
-
+    <string name="cancelar">Cancelar</string>
     <string name="et_titulo">Título</string>
     <string name="tv_prioritaria">Prioritaria</string>
     <string name="btn_siguiente">Siguiente</string>
@@ -58,4 +58,37 @@
     <string name="fecha_termina">Tareas que finalizan este mes</string>
     <string name="tarea_caducada">Tareas caducadas</string>
     <string name="tarea_prioritaria">Tareas Prioritarias</string>
+
+    <!-- Strings para preferencias -->
+    <string name="preferencias">Opciones</string>
+    <string name="categoria_visualizacion">Vizualización</string>
+    <string name="preferencia_tema">Tema</string>
+    <string name="pequeno">Pequeño</string>
+    <string name="medio">Medio</string>
+    <string name="grande">Grande</string>
+    <string name="letra">Tamaño de la letra</string>
+    <string name="ordenacion">Ordenación</string>
+
+    <string name="alfabetico">Alfabético</string>
+    <string name="por_fecha">Por Fecha de creacion</string>
+    <string name="por_progreso">Por progreso</string>
+
+    <string name="criterio">Criterio</string>
+    <string name="orden">Orden</string>
+
+    <!-- Strings para descripciones botones -->
+    <string name="añadir_documento">Añadir documento</string>
+    <string name="añadir_audio">Añadir audio</string>
+    <string name="añadir_foto">Añadir foto</string>
+    <string name="añadir_video">Añadir video</string>
+    <string name="almacenamiento">Almacenamiento</string>
+    <string name="tarjeta_sd">Tarjeta SD</string>
+    <string name="limpieza_arch">Limpieza de archivos</string>
+
+    <string name="documento">Documento</string>
+    <string name="imagen">Imagen</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+    <string name="btn_restablecer">Restablecer preferencias</string>
+
 </resources>

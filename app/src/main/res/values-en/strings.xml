@@ -11,6 +11,7 @@
     <string name="tv_dias">days</string>
     <string name="añadir_tarea">Add Task</string>
 
+    <string name="cancelar">Cancel</string>
     <string name="et_titulo">Title</string>
     <string name="tv_prioritaria">Priority</string>
     <string name="btn_siguiente">Next</string>
@@ -49,7 +50,7 @@
     <string name="aviso">Please, complete all fields</string>
     <string name="borrar_tarea">Do you want to delete the task </string>
 
-    <!-- Strings para estadisticas -->
+
     <string name="estadisticas">Statistics</string>
     <string name="promedio_progreso">The average progress of the tasks is </string>
     <string name="tareas_estado">Number of completed tasks by status:</string>
@@ -59,6 +60,40 @@
     <string name="fecha_termina">Tasks ending this month</string>
     <string name="tarea_caducada">Expired Tasks</string>
     <string name="tarea_prioritaria">Priority Tasks</string>
+
+
+    <!-- Strings para preferencias -->
+    <string name="categoria_visualizacion">Visualization</string>
+    <string name="preferencias">Options</string>
+    <string name="preferencia_tema">Theme</string>
+    <string name="pequeno">Small</string>
+    <string name="medio">Medium</string>
+    <string name="grande">Large</string>
+    <string name="letra">Font Size</string>
+    <string name="ordenacion">Sorting</string>
+
+    <string name="alfabetico">Alphabetic</string>
+    <string name="por_fecha">By Creation Date</string>
+    <string name="por_progreso">By Progress</string>
+
+    <string name="criterio">Criterion</string>
+    <string name="orden">Order</string>
+    <!-- Strings para descripciones botones -->
+    <string name="añadir_documento">Add Document</string>
+    <string name="añadir_audio">Add Audio</string>
+    <string name="añadir_foto">Add Photo</string>
+    <string name="añadir_video">Add Video</string>
+
+    <string name="documento">Document</string>
+    <string name="imagen">Image</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+
+    <string name="almacenamiento">Storage</string>
+    <string name="tarjeta_sd">SD Card</string>
+    <string name="limpieza_arch">File Cleanup</string>
+    <string name="btn_restablecer">Reset Preferences</string>
+
 
 
 </resources>

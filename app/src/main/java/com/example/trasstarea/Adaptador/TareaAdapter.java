@@ -8,6 +8,7 @@ import static android.provider.Settings.System.getString;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -30,6 +31,7 @@ import androidx.room.Room;
 
 import com.example.trasstarea.Datos.Tarea;
 import com.example.trasstarea.ListadoTareasActivity;
+import com.example.trasstarea.MostrarTarea;
 import com.example.trasstarea.R;
 import com.example.trasstarea.basedatos.BaseDatos;
 
@@ -138,6 +140,21 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             Toast.makeText(itemView.getContext(), contexto.getString(R.string.tarea_borrada), Toast.LENGTH_SHORT).show();
         }
         public void bindTarea(Tarea t) {
+
+            // Agregar un OnClickListener al itemView
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Obtener la tarea actualmente seleccionada
+                    Tarea tareaSeleccionada = datos.get(getAdapterPosition());
+
+                    // Crear un Intent para iniciar la nueva actividad
+                    Intent intent = new Intent(contexto, MostrarTarea.class);
+                    intent.putExtra("tarea", tareaSeleccionada);
+                    contexto.startActivity(intent);
+                }
+            });
+
             tarea.setText(t.getTitulo());
             @SuppressLint("SimpleDateFormat") SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
             fecha.setText(formatoFecha.format(t.getFechaCreacion()));
@@ -180,6 +197,8 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             progreso.setProgress(t.getProgreso());
 
         }
+
     }
+
 
 }

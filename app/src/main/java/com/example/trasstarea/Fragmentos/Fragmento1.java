@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +40,7 @@ public class Fragmento1 extends Fragment {
     private TextInputEditText etTitulo,etFechaCreacion,etFechaObjetivo;
     private Spinner spProgreso;
     private CheckBox chbPrioritaria;
+
 
     public interface ComunicarFragmento1{
         void onBotonIrFragmento2();
@@ -85,6 +85,7 @@ public class Fragmento1 extends Fragment {
                 getString(R.string.estado_finalizada)};
 
         Button btnSiguiente = fragmento1.findViewById(R.id.btn_siguiente);
+        Button botonCancelar= fragmento1.findViewById(R.id.btnCancelar);
         btnSiguiente.setOnClickListener(view ->{
             if(TextUtils.isEmpty(etTitulo.getText()) || TextUtils.isEmpty(etFechaCreacion.getText()) || TextUtils.isEmpty(etFechaObjetivo.getText())){
                 Toast.makeText(requireContext(), getString(R.string.aviso), Toast.LENGTH_LONG).show();
@@ -92,6 +93,9 @@ public class Fragmento1 extends Fragment {
                 comunicador1.onBotonIrFragmento2();
             }
 
+        });
+        botonCancelar.setOnClickListener(view ->{
+            getActivity().finish();
         });
 
 

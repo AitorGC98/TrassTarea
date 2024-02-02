@@ -2,6 +2,8 @@ package com.example.trasstarea;
 
 import static android.app.PendingIntent.getActivity;
 
+import static java.lang.Math.log;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -9,8 +11,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -19,6 +23,9 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,8 +36,12 @@ import android.widget.Toast;
 import com.example.trasstarea.Adaptador.TareaAdapter;
 import com.example.trasstarea.Datos.Tarea;
 import com.example.trasstarea.basedatos.BaseDatos;
+import com.example.trasstarea.preferencias.SettingsActivity;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -40,10 +51,12 @@ public class ListadoTareasActivity extends AppCompatActivity {
     private List<Tarea> datos=new ArrayList<>();
     private RecyclerView rv;
     private TextView tvLista;
-    private boolean mostrarSoloPrioritarias=false,estadodialogo=false,hayprioritarias;
-    private int pos,numTareas;
+    private boolean mostrarSoloPrioritarias=false,estadodialogo=false,hayprioritarias,orden;
+    private int pos,numTareas,criterio;
     private BaseDatos baseDatos;
     private TareaAdapter adaptador;
+    private SharedPreferences sharedPreferences;
+
 
 
     @Override
@@ -51,6 +64,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listado_tareas);
 
+        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         baseDatos=BaseDatos.getInstance(getApplicationContext());
         if (savedInstanceState != null) {//si no es la primera vez que se ejecuta
 
@@ -60,6 +74,9 @@ public class ListadoTareasActivity extends AppCompatActivity {
         if(estadodialogo){
             mostrarAcercaDe();
         }
+        String criterioS=sharedPreferences.getString("criterio", "2");
+        criterio= Integer.parseInt(criterioS);
+        orden=sharedPreferences.getBoolean("orden", true);
 
         adaptador = new TareaAdapter(this, datos);
 
@@ -103,6 +120,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
                         Intent intentDevuelto = result.getData();
                         assert intentDevuelto != null;
                         Tarea tarea = (Tarea) Objects.requireNonNull(intentDevuelto.getExtras()).get("Resultado");
+                        Toast.makeText(getApplicationContext(), tarea.getUrlDoc(), Toast.LENGTH_LONG).show();
                         adaptador = (TareaAdapter) rv.getAdapter();
                         if(adaptador!=null){
 
@@ -111,7 +129,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
 
                             actualizarEstadoTextView();
                         }
-                        Toast.makeText(getApplicationContext(), getString(R.string.tarea_guardada), Toast.LENGTH_LONG).show();
+
                     }
                 }
             });
@@ -162,9 +180,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id=item.getItemId();
-
-
-
         //opcion de menu añadir tarea
         if (id == R.id.it_añadir) {
 
@@ -200,8 +215,9 @@ public class ListadoTareasActivity extends AppCompatActivity {
         }else if(id==R.id.it_estadisticas){
             Intent intent = new Intent(ListadoTareasActivity.this, EstadisticasActivity.class);
             startActivity(intent);
+        }else  if(id==R.id.it_preferencias) {
+            startActivity(new Intent(this, SettingsActivity.class));
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -217,6 +233,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Tarea> tareas) {
                 datos=tareas;
+                ordenarLista();
                 adaptador.setDatos(datos);
                 adaptador.notifyDataSetChanged();
                 actualizarEstadoTextView();
@@ -230,6 +247,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
             public void onChanged(List<Tarea> tareas) {
                 if(!mostrarSoloPrioritarias) {
                     datos = tareas;
+                    ordenarLista();
                     adaptador.setDatos(datos);
                     adaptador.notifyDataSetChanged();
                     actualizarEstadoTextView();
@@ -294,6 +312,15 @@ public class ListadoTareasActivity extends AppCompatActivity {
                     .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Acción a realizar si la respuesta es Sí
+                            String urldoc=tarea.getUrlDoc();
+                            String urlImg=tarea.getUrlImg();
+                            String urlVid=tarea.getUrlVid();
+                            String urlAud=tarea.getUrlAud();
+                            borrarArchivo(urldoc);
+                            borrarArchivo(urlImg);
+                            borrarArchivo(urlVid);
+                            borrarArchivo(urlAud);
+
                             Executor executor = Executors.newSingleThreadExecutor();
                             executor.execute(new BorrarTarea(tarea));
                             if(mostrarSoloPrioritarias){
@@ -317,9 +344,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
             Tarea tarea=adaptador.getDatos().get(posicion);
 
             irEditarTarea(tarea);
-        }else if(item.getItemId()==R.id.menu_descripcion){
-            Tarea tarea=adaptador.getDatos().get(posicion);
-            mostrarDescripcion(tarea);
         }
         return super.onContextItemSelected(item);
     }
@@ -352,30 +376,6 @@ public class ListadoTareasActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void mostrarDescripcion(Tarea tarea) {
-        // Crear un cuadro de diálogo para Acerca de
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.menu_descripcion));
-
-        // Construir el contenido del cuadro de diálogo
-        String descripcionTexto = tarea.getDescripcion();
-
-        builder.setMessage(descripcionTexto);
-        estadodialogo=true;
-
-        // Agregar un botón "Aceptar" al cuadro de diálogo
-        builder.setPositiveButton(getString(R.string.boton_aceptar), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // Cerrar el cuadro de diálogo al hacer clic en "Aceptar"
-                estadodialogo=false;
-                dialog.dismiss();
-            }
-        });
-
-        // Mostrar el cuadro de diálogo
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
     class InsertarTarea implements Runnable {
 
@@ -436,4 +436,119 @@ public class ListadoTareasActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (sharedPreferences.getBoolean("tema", true)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+        String tamañoLetraString = sharedPreferences.getString("letra", "2");
+        // Convertir la cadena a entero con un valor predeterminado de 2 si falla
+        int tamañoLetraSeleccionado = Integer.parseInt(tamañoLetraString);
+
+        switch (tamañoLetraSeleccionado) {
+            case 1:
+
+                setDefaultFontScale(0.7f);
+                break;
+            case 3:
+
+                setDefaultFontScale(1.4f);
+                break;
+            default:
+
+                setDefaultFontScale(1.0f);
+        }
+        String criterioS=sharedPreferences.getString("criterio", "2");
+        criterio= Integer.parseInt(criterioS);
+        orden=sharedPreferences.getBoolean("orden", true);
+        //ordenamos la lista
+        ordenarLista();
+        //volver a cargar el recyclerview
+        adaptador = new TareaAdapter(this, datos);
+        rv = findViewById(R.id.rv_lista);
+        rv.setAdapter(adaptador);
+        rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+    }
+
+    private void setDefaultFontScale(float factorDeEscala) {
+        // Configura el factor de escala para toda la aplicación
+        Resources resources = getResources();
+        Configuration configuration = resources.getConfiguration();
+        configuration.fontScale = factorDeEscala;
+        resources.updateConfiguration(configuration, null);
+    }
+
+    public void ordenarLista() {
+        // Criterio 1: Alfabético
+        if (criterio == 1) {
+            Collections.sort(datos, new Comparator<Tarea>() {
+                @Override
+                public int compare(Tarea tarea1, Tarea tarea2) {
+                    if (orden) {
+                        return tarea1.getTitulo().compareToIgnoreCase(tarea2.getTitulo());
+                    } else {
+                        return tarea2.getTitulo().compareToIgnoreCase(tarea1.getTitulo());
+                    }
+                }
+            });
+        }
+        // Criterio 2: Fecha de creación
+        else if (criterio == 2) {
+            Collections.sort(datos, new Comparator<Tarea>() {
+                @Override
+                public int compare(Tarea tarea1, Tarea tarea2) {
+                    if (orden) {
+                        return tarea1.getFechaCreacion().compareTo(tarea2.getFechaCreacion());
+                    } else {
+                        return tarea2.getFechaCreacion().compareTo(tarea1.getFechaCreacion());
+                    }
+                }
+            });
+        }
+        // Criterio 3: Progreso
+        else if (criterio == 3) {
+            Collections.sort(datos, new Comparator<Tarea>() {
+                @Override
+                public int compare(Tarea tarea1, Tarea tarea2) {
+                    if (orden) {
+                        return Integer.compare(tarea1.getProgreso(), tarea2.getProgreso());
+                    } else {
+                        return Integer.compare(tarea2.getProgreso(), tarea1.getProgreso());
+                    }
+                }
+            });
+        }
+
+    }
+    public static boolean borrarArchivo(String urlArchivo) {
+        try {
+            // Crear un objeto File con la URL proporcionada
+            File archivo = new File(urlArchivo);
+
+            // Verificar si el archivo existe antes de intentar borrarlo
+            if (archivo.exists()) {
+                // Intentar borrar el archivo
+                if (archivo.delete()) {
+
+                    return true;
+                } else {
+
+                    return false;
+                }
+            } else {
+
+                return false;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
+
+

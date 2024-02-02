@@ -92,6 +92,7 @@ public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.
         String descripcion = compartirViewModel.getDescripcion().getValue();
         String fechaCreacion = compartirViewModel.getFechaCreacion().getValue();
         String fechaObjetivo = compartirViewModel.getFechaObjetivo().getValue();
+        String urlDoc="",urlImg="",urlAud="",urlVid="";
         boolean prioritaria;
         if(compartirViewModel.getPrioritarias().getValue()==null){
             prioritaria =false;
@@ -100,7 +101,30 @@ public class CrearTareaActivity extends AppCompatActivity implements Fragmento1.
         }
         int progreso = porcentajes[compartirViewModel.getProgreso().getValue()];
 
-        Tarea tarea=new Tarea(titulo, descripcion, progreso, fechaCreacion, fechaObjetivo, prioritaria);
+
+
+
+        if (compartirViewModel.getUrlDoc().getValue() != null) {
+            //tarea.setUrlDoc(compartirViewModel.getUrlDoc().getValue().toString());
+            urlDoc=compartirViewModel.getUrlDoc().getValue().toString();
+        }
+
+        if (compartirViewModel.getUrlAud().getValue() != null) {
+            //tarea.setUrlAud(compartirViewModel.getUrlAud().getValue().toString());
+            urlAud=compartirViewModel.getUrlAud().getValue().toString();
+        }
+
+        if (compartirViewModel.getUrlVid().getValue() != null) {
+            //tarea.setUrlVid(compartirViewModel.getUrlVid().getValue().toString());
+            urlVid=compartirViewModel.getUrlVid().getValue().toString();
+        }
+
+        if (compartirViewModel.getUrlImg().getValue() != null) {
+            //tarea.setUrlImg(compartirViewModel.getUrlImg().getValue().toString());
+            urlImg=compartirViewModel.getUrlImg().getValue().toString();
+        }
+        Tarea tarea=new Tarea(titulo, descripcion, progreso, fechaCreacion, fechaObjetivo, prioritaria,urlDoc,urlImg,urlAud,urlVid);
+
         Intent intentVolver = new Intent();
         intentVolver.putExtra("Resultado", tarea);
         setResult(RESULT_OK, intentVolver);

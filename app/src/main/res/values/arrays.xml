@@ -1,0 +1,19 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="valores_mostrados">
+        <item>@string/pequeno</item>
+        <item>@string/medio</item>
+        <item>@string/grande</item>
+    </string-array>
+    <string-array name="valores_leidos">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="valores_criterio">
+        <item>@string/alfabetico</item>
+        <item>@string/por_fecha</item>
+        <item>@string/por_progreso</item>
+    </string-array>
+</resources>

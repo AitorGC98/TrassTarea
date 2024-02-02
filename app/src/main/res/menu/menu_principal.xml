@@ -32,6 +32,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <item
+            android:id="@+id/it_preferencias"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="@string/preferencias" />
+        <item
             android:id="@+id/it_estadisticas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -1,13 +1,22 @@
 package com.example.trasstarea.Fragmentos;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -16,15 +25,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.trasstarea.FragmentsUtilities.CompartirViewModel;
+
 import com.example.trasstarea.R;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class Fragmento2 extends Fragment {
 
     private EditText etmDescripcion;
+    private TextView tvImg,tvDoc,tvAud,tvVid;
     private CompartirViewModel compartirViewModel;
+    private static final int PICK_PDF_REQUEST = 1;
+    private static final int PICK_VIDEO_REQUEST = 2;
+    private static final int PICK_IMAGE_REQUEST = 3;
+    private static final int PICK_AUDIO_REQUEST = 4;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static final String DIRECTORIO_ARCHIVOS = "archivos";
+    private SharedPreferences sharedPreferences;
+    private boolean tarjetaSD =false;
+
 
     public interface ComunicarFragmento2{
         void onBotonGuardar();
@@ -52,9 +79,17 @@ public class Fragmento2 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
+        sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(requireContext());
+
+        tarjetaSD = sharedPreferences.getBoolean("sd", false);
         View fragmento2 =inflater.inflate(R.layout.fragment_fragmento2, container, false);
 
         Button btnVolver = fragmento2.findViewById(R.id.btn_volver);
+        AppCompatImageButton btndoc = fragmento2.findViewById(R.id.btn_documento);
+        AppCompatImageButton btnVid = fragmento2.findViewById(R.id.btn_video);
+        AppCompatImageButton btnAud = fragmento2.findViewById(R.id.btn_audio);
+        AppCompatImageButton btnImg = fragmento2.findViewById(R.id.btn_imagen);
         btnVolver.setOnClickListener(view -> comunicador2.onBotonIr1Clicked());
         Button btnGuardar = fragmento2.findViewById(R.id.btn_guardar);
         btnGuardar.setOnClickListener((view ->{
@@ -65,8 +100,69 @@ public class Fragmento2 extends Fragment {
             }
 
         }));
+        btndoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Abre el selector de archivos para seleccionar PDF
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("application/pdf");
+                startActivityForResult(Intent.createChooser(intent, "Selecciona un archivo PDF"), PICK_PDF_REQUEST);
+            }
+        });
+
+        btnVid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Abre el selector de archivos para seleccionar videos
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("video/*"); // Puedes ajustar el tipo MIME según el formato de video que desees permitir
+                startActivityForResult(Intent.createChooser(intent, "Selecciona un archivo de video"), PICK_VIDEO_REQUEST);
+            }
+        });
+        btnImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Abre el selector de archivos para seleccionar imágenes
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*"); // Puedes ajustar el tipo MIME según el formato de imagen que desees permitir
+                startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"), PICK_IMAGE_REQUEST);
+            }
+        });
+        btnAud.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Abre el selector de archivos para seleccionar audios
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("audio/*"); // Puedes ajustar el tipo MIME según el formato de audio que desees permitir
+                startActivityForResult(Intent.createChooser(intent, "Selecciona un archivo de audio"), PICK_AUDIO_REQUEST);
+            }
+        });
+
+
+
         etmDescripcion = fragmento2.findViewById(R.id.etm_descripcion);
-        etmDescripcion.setText((compartirViewModel.getDescripcion().getValue()));
+        tvDoc = fragmento2.findViewById(R.id.tv_docuemento);
+        tvImg = fragmento2.findViewById(R.id.tv_imagen);
+        tvAud = fragmento2.findViewById(R.id.tv_audio);
+        tvVid = fragmento2.findViewById(R.id.tv_video);
+        if (compartirViewModel.getUrlDoc().getValue() != null) {
+            tvDoc.setText(compartirViewModel.getUrlDoc().getValue().toString());
+        }
+
+        if (compartirViewModel.getUrlAud().getValue() != null) {
+            tvAud.setText(compartirViewModel.getUrlAud().getValue().toString());
+        }
+
+        if (compartirViewModel.getUrlVid().getValue() != null) {
+            tvVid.setText(compartirViewModel.getUrlVid().getValue().toString());
+        }
+
+        if (compartirViewModel.getUrlImg().getValue() != null) {
+            tvImg.setText(compartirViewModel.getUrlImg().getValue().toString());
+        }
+        if (compartirViewModel.getDescripcion().getValue() != null) {
+            etmDescripcion.setText(compartirViewModel.getDescripcion().getValue().toString());
+        }
 
         // Agregar TextWatcher al EditText para escuchar cambios en tiempo real
         etmDescripcion.addTextChangedListener(new TextWatcher() {
@@ -91,7 +187,594 @@ public class Fragmento2 extends Fragment {
         return fragmento2;
 
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PICK_PDF_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+
+            LiveData<String> urlDocLiveData = compartirViewModel.getUrlDoc();
+            String urlDocumento="";
+            if (urlDocLiveData != null && urlDocLiveData.getValue() != null) {
+                // El LiveData y su valor no son nulos, así que puedes acceder a toString()
+                urlDocumento = urlDocLiveData.getValue().toString();
+            }
+            Uri pdfUri = data.getData();
+        if(tarjetaSD){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+                    try {
+                        // Obtén el InputStream del contenido del archivo PDF
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(pdfUri);
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdirs(); // Use mkdirs() to create the entire directory path if it doesn't exist
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".pdf";
+                        File archivoPDF = new File(directorioArchivos, nombreArchivo);
+                        if(urlDocumento.isEmpty() || urlDocumento==null){
+
+                        }else{
+                            borrarArchivo(urlDocumento);
+                        }
+                        // Copia el contenido del InputStream al OutputStream del archivo
+                        OutputStream outputStream = new FileOutputStream(archivoPDF);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+
+                        // Puedes mostrar la URL en un TextView
+                        tvDoc.setText(archivoPDF.getAbsolutePath());
+                        compartirViewModel.setUrlDoc(archivoPDF.getAbsolutePath());
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el archivo PDF", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+
+
+                    try {
+                        // Obtén el InputStream del contenido del archivo PDF
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(pdfUri);
+
+                        // Obtiene la ruta del directorio de la tarjeta SD
+                        File sdCardDirectory = new File("/mnt/sdcard"); // Ajusta la ruta según la estructura de tu dispositivo
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(sdCardDirectory, DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdirs(); // Use mkdirs() to create the entire directory path if it doesn't exist
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".pdf";
+                        File archivoPDF = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlDocumento.isEmpty() || urlDocumento==null){
+
+                        }else{
+                            borrarArchivo(urlDocumento);
+                        }
+                        // Copia el contenido del InputStream al OutputStream del archivo
+                        OutputStream outputStream = new FileOutputStream(archivoPDF);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+
+
+                        // Puedes mostrar la URL en un TextView
+                        tvDoc.setText(archivoPDF.getAbsolutePath());
+                        compartirViewModel.setUrlDoc(archivoPDF.getAbsolutePath());
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el archivo PDF", Toast.LENGTH_SHORT).show();
+                    }
+            }
+
+        }else {
+
+
+            try {
+                // Obtén el InputStream del contenido del archivo PDF
+                InputStream inputStream = requireContext().getContentResolver().openInputStream(pdfUri);
+
+                // Crea el directorio si no existe
+                File directorioArchivos = new File(requireContext().getFilesDir(), DIRECTORIO_ARCHIVOS);
+                if (!directorioArchivos.exists()) {
+                    directorioArchivos.mkdir();
+                }
+
+                // Crea el archivo en el directorio "archivos"
+                String nombreArchivo = System.currentTimeMillis() + ".pdf";
+                File archivoPDF = new File(directorioArchivos, nombreArchivo);
+
+                if(urlDocumento.isEmpty() || urlDocumento==null){
+
+                }else{
+                    borrarArchivo(urlDocumento);
+                }
+                // Copia el contenido del InputStream al OutputStream del archivo
+                OutputStream outputStream = new FileOutputStream(archivoPDF);
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+
+                // Cierra los flujos
+                inputStream.close();
+                outputStream.close();
+
+                tvDoc.setText(archivoPDF.getAbsolutePath());
+                compartirViewModel.setUrlDoc(archivoPDF.getAbsolutePath());
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(requireContext(), "Error al guardar el archivo PDF", Toast.LENGTH_SHORT).show();
+            }
+        }
+            } else if (requestCode == PICK_VIDEO_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+
+            LiveData<String> urlVidLiveData = compartirViewModel.getUrlVid();
+            String urlVideo="";
+            if (urlVideo != null && urlVidLiveData.getValue() != null) {
+
+                urlVideo = urlVidLiveData.getValue().toString();
+            }
+
+            Uri videoUri = data.getData();
+            if(tarjetaSD){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+
+                    try {
+                        // Obtén el InputStream del contenido del archivo PDF
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(videoUri);
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdirs(); // Use mkdirs() to create the entire directory path if it doesn't exist
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".mp4"; // Ajusta la extensión según el formato de video
+                        File archivoVideo = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlVideo.isEmpty() || urlVideo==null){
+
+                        }else{
+                            borrarArchivo(urlVideo);
+                        }
+                        // Copia el contenido del InputStream al OutputStream del archivo
+                        OutputStream outputStream = new FileOutputStream(archivoVideo);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+                        tvVid.setText(archivoVideo.getAbsolutePath());
+                        compartirViewModel.setUrlVid(archivoVideo.getAbsolutePath());
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el archivo de video", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+
+                    try {
+                        // Obtén el InputStream del contenido del archivo PDF
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(videoUri);
+
+                        // Obtiene la ruta del directorio de la tarjeta SD
+                        File sdCardDirectory = new File("/mnt/sdcard"); // Ajusta la ruta según la estructura de tu dispositivo
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(sdCardDirectory, DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdirs(); // Use mkdirs() to create the entire directory path if it doesn't exist
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".mp4";
+                        File archivoVideo = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlVideo.isEmpty() || urlVideo==null){
+
+                        }else{
+                            borrarArchivo(urlVideo);
+                        }
+
+                        OutputStream outputStream = new FileOutputStream(archivoVideo);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+                        tvVid.setText(archivoVideo.getAbsolutePath());
+                        compartirViewModel.setUrlVid(archivoVideo.getAbsolutePath());
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el archivo de video", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+            }else {
+
+                try {
+                    // Obtén el InputStream del contenido del archivo de video
+                    InputStream inputStream = requireContext().getContentResolver().openInputStream(videoUri);
+
+                    // Crea el directorio si no existe
+                    File directorioArchivos = new File(requireContext().getFilesDir(), DIRECTORIO_ARCHIVOS);
+                    if (!directorioArchivos.exists()) {
+                        directorioArchivos.mkdir();
+                    }
+
+                    // Crea el archivo en el directorio "archivos"
+                    String nombreArchivo = System.currentTimeMillis() + ".mp4"; // Ajusta la extensión según el formato de video
+                    File archivoVideo = new File(directorioArchivos, nombreArchivo);
+
+                    if(urlVideo.isEmpty() || urlVideo==null){
+
+                    }else{
+                        borrarArchivo(urlVideo);
+                    }
+
+                    // Copia el contenido del InputStream al OutputStream del archivo
+                    OutputStream outputStream = new FileOutputStream(archivoVideo);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, length);
+                    }
+
+                    // Cierra los flujos
+                    inputStream.close();
+                    outputStream.close();
+
+                    tvVid.setText(archivoVideo.getAbsolutePath());
+                    compartirViewModel.setUrlVid(archivoVideo.getAbsolutePath());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(requireContext(), "Error al guardar el video", Toast.LENGTH_SHORT).show();
+                }
+            }
+            } else if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+
+            LiveData<String> urlImgtLiveData = compartirViewModel.getUrlImg();
+            String urlImagen="";
+            if (urlImagen != null && urlImgtLiveData.getValue() != null) {
+
+                urlImagen = urlImgtLiveData.getValue().toString();
+            }
+            Uri imageUri = data.getData();
+
+            if(tarjetaSD) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+                    try {
+                        // Obtén el InputStream del contenido del archivo PDF
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdirs(); // Use mkdirs() to create the entire directory path if it doesn't exist
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".jpg"; // Ajusta la extensión según el formato de imagen
+                        File archivoImagen = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlImagen.isEmpty() || urlImagen==null){
+
+                        }else{
+                            borrarArchivo(urlImagen);
+                        }
+
+                        // Copia el contenido del InputStream al OutputStream del archivo
+                        OutputStream outputStream = new FileOutputStream(archivoImagen);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+                        tvImg.setText(archivoImagen.getAbsolutePath());
+                        compartirViewModel.setUrlVid(archivoImagen.getAbsolutePath());
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el archivo de video", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    try {
+                        // Obtén el InputStream del contenido del archivo de video
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(requireContext().getFilesDir(), DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdir();
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".jpg"; // Ajusta la extensión según el formato de imagen
+                        File archivoImagen = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlImagen.isEmpty() || urlImagen==null){
+
+                        }else{
+                            borrarArchivo(urlImagen);
+                        }
+
+                        OutputStream outputStream = new FileOutputStream(archivoImagen);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+                        tvImg.setText(archivoImagen.getAbsolutePath());
+                        compartirViewModel.setUrlVid(archivoImagen.getAbsolutePath());
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el video", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }else {
+
+                try {
+                    // Obtén el InputStream del contenido del archivo de imagen
+                    InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+
+                    // Crea el directorio si no existe
+                    File directorioArchivos = new File(requireContext().getFilesDir(), DIRECTORIO_ARCHIVOS);
+                    if (!directorioArchivos.exists()) {
+                        directorioArchivos.mkdir();
+                    }
+
+                    // Crea el archivo en el directorio "archivos"
+                    String nombreArchivo = System.currentTimeMillis() + ".jpg"; // Ajusta la extensión según el formato de imagen
+                    File archivoImagen = new File(directorioArchivos, nombreArchivo);
+
+                    if(urlImagen.isEmpty() || urlImagen==null){
+
+                    }else{
+                        borrarArchivo(urlImagen);
+                    }
+
+                    // Copia el contenido del InputStream al OutputStream del archivo
+                    OutputStream outputStream = new FileOutputStream(archivoImagen);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, length);
+                    }
+
+                    // Cierra los flujos
+                    inputStream.close();
+                    outputStream.close();
+
+                    // Puedes mostrar la URL en un TextView o almacenarla según tus necesidades
+                    tvImg.setText(archivoImagen.getAbsolutePath());
+                    compartirViewModel.setUrlImg(archivoImagen.getAbsolutePath());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+                }
+            }
+            } else if (requestCode == PICK_AUDIO_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+
+            LiveData<String> urlAudtLiveData = compartirViewModel.getUrlImg();
+            String urlAudio="";
+            if (urlAudio != null && urlAudtLiveData.getValue() != null) {
+
+                urlAudio = urlAudtLiveData.getValue().toString();
+            }
+            Uri audioUri = data.getData();
+
+            if (tarjetaSD) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+                    try {
+                        // Obtén el InputStream del contenido del archivo PDF
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(audioUri);
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdirs(); // Use mkdirs() to create the entire directory path if it doesn't exist
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".mp3"; // Ajusta la extensión según el formato de audio
+                        File archivoAudio = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlAudio.isEmpty() || urlAudio==null){
+
+                        }else{
+                            borrarArchivo(urlAudio);
+                        }
+
+                        // Copia el contenido del InputStream al OutputStream del archivo
+                        OutputStream outputStream = new FileOutputStream(archivoAudio);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+                        // Puedes mostrar la URL en un TextView o almacenarla según tus necesidades
+                        tvAud.setText(archivoAudio.getAbsolutePath());
+                        compartirViewModel.setUrlAud(archivoAudio.getAbsolutePath());
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el archivo de video", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    try {
+                        // Obtén el InputStream del contenido del archivo de video
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(audioUri);
+
+                        // Crea el directorio si no existe
+                        File directorioArchivos = new File(requireContext().getFilesDir(), DIRECTORIO_ARCHIVOS);
+                        if (!directorioArchivos.exists()) {
+                            directorioArchivos.mkdir();
+                        }
+
+                        // Crea el archivo en el directorio "archivos"
+                        String nombreArchivo = System.currentTimeMillis() + ".mp3"; // Ajusta la extensión según el formato de audio
+                        File archivoAudio = new File(directorioArchivos, nombreArchivo);
+
+                        if(urlAudio.isEmpty() || urlAudio==null){
+
+                        }else{
+                            borrarArchivo(urlAudio);
+                        }
+
+                        OutputStream outputStream = new FileOutputStream(archivoAudio);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Cierra los flujos
+                        inputStream.close();
+                        outputStream.close();
+
+
+                        // Puedes mostrar la URL en un TextView o almacenarla según tus necesidades
+                        tvAud.setText(archivoAudio.getAbsolutePath());
+                        compartirViewModel.setUrlAud(archivoAudio.getAbsolutePath());
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(requireContext(), "Error al guardar el video", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else {
+
+                try {
+                    // Obtén el InputStream del contenido del archivo de audio
+                    InputStream inputStream = requireContext().getContentResolver().openInputStream(audioUri);
+
+                    // Crea el directorio si no existe
+                    File directorioArchivos = new File(requireContext().getFilesDir(), DIRECTORIO_ARCHIVOS);
+                    if (!directorioArchivos.exists()) {
+                        directorioArchivos.mkdir();
+                    }
+
+                    // Crea el archivo en el directorio "archivos"
+                    String nombreArchivo = System.currentTimeMillis() + ".mp3"; // Ajusta la extensión según el formato de audio
+                    File archivoAudio = new File(directorioArchivos, nombreArchivo);
+
+                    if(urlAudio.isEmpty() || urlAudio==null){
+
+                    }else{
+                        borrarArchivo(urlAudio);
+                    }
+
+                    // Copia el contenido del InputStream al OutputStream del archivo
+                    OutputStream outputStream = new FileOutputStream(archivoAudio);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, length);
+                    }
+
+                    // Cierra los flujos
+                    inputStream.close();
+                    outputStream.close();
+
+
+
+                    // Puedes mostrar la URL en un TextView o almacenarla según tus necesidades
+                    tvAud.setText(archivoAudio.getAbsolutePath());
+                    compartirViewModel.setUrlAud(archivoAudio.getAbsolutePath());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(requireContext(), "Error al guardar el audio", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+    }
+    public static boolean borrarArchivo(String urlArchivo) {
+        try {
+            // Crear un objeto File con la URL proporcionada
+            File archivo = new File(urlArchivo);
+
+            // Verificar si el archivo existe antes de intentar borrarlo
+            if (archivo.exists()) {
+                // Intentar borrar el archivo
+                if (archivo.delete()) {
+
+                    return true;
+                } else {
+
+                    return false;
+                }
+            } else {
+
+                return false;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);

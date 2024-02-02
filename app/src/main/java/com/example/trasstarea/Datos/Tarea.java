@@ -24,7 +24,7 @@ public class Tarea implements Parcelable {
     private String descripcion;
     private int progreso;
     @PrimaryKey(autoGenerate = true)
-    private  int id;
+    private int id;
     private Date fechaCreacion;
     private Date fechaObjetio;
     private boolean prioritario;
@@ -34,7 +34,7 @@ public class Tarea implements Parcelable {
     private String urlVid;
 
 
-    public Tarea(String titulo, String descripcion, int progreso, String fechaCreacion, String fechaObjetio,boolean prioritario) {
+    public Tarea(String titulo, String descripcion, int progreso, String fechaCreacion, String fechaObjetio, boolean prioritario) {
 
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -43,19 +43,39 @@ public class Tarea implements Parcelable {
             @SuppressLint("SimpleDateFormat") SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
             this.fechaCreacion = formatoFecha.parse(fechaCreacion);
             this.fechaObjetio = formatoFecha.parse(fechaObjetio);
-        }catch (ParseException e){
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-        this.prioritario=prioritario;
+        this.prioritario = prioritario;
     }
-    public Tarea(){
+
+    public Tarea() {
 
     }
 
+    public Tarea(String titulo, String descripcion, int progreso, String fechaCreacion, String fechaObjetio, boolean prioritario, String urlDoc, String urlImg, String urlAud, String urlVid) {
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.progreso = progreso;
+        try {
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+            this.fechaCreacion = formatoFecha.parse(fechaCreacion);
+            this.fechaObjetio = formatoFecha.parse(fechaObjetio);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        this.prioritario = prioritario;
+        this.urlDoc = urlDoc;
+        this.urlImg = urlImg;
+        this.urlAud = urlAud;
+        this.urlVid = urlVid;
+    }
 
     public void setId(int id) {
         this.id = id;
     }
+
     public String getUrlAud() {
         return urlAud;
     }
@@ -101,7 +121,9 @@ public class Tarea implements Parcelable {
         return Objects.hash(id);
     }
 
-    public int getId() {return id; }
+    public int getId() {
+        return id;
+    }
 
     public boolean isPrioritario() {
         return prioritario;
@@ -152,7 +174,6 @@ public class Tarea implements Parcelable {
     }
 
 
-
     public int getDiasRestantes() {
         if (fechaObjetio == null) {
             // Si la fecha objetivo es nula, retornamos un valor negativo para indicar que no hay fecha objetivo establecida.
@@ -174,6 +195,7 @@ public class Tarea implements Parcelable {
         return (int) (diferenciaMilisegundos / (1000 * 60 * 60 * 24));
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -188,28 +210,26 @@ public class Tarea implements Parcelable {
         dest.writeLong(this.fechaCreacion != null ? this.fechaCreacion.getTime() : -1);
         dest.writeLong(this.fechaObjetio != null ? this.fechaObjetio.getTime() : -1);
         dest.writeByte(this.prioritario ? (byte) 1 : (byte) 0);
-
-        // Nuevos atributos URL
         dest.writeString(this.urlDoc);
         dest.writeString(this.urlImg);
         dest.writeString(this.urlAud);
         dest.writeString(this.urlVid);
-
     }
 
-    public void readFromParcel(Parcel dest, int flags) {
-        dest.writeString(this.titulo);
-        dest.writeString(this.descripcion);
-        dest.writeInt(this.progreso);
-        dest.writeInt(this.id);
-        dest.writeLong(this.fechaCreacion != null ? this.fechaCreacion.getTime() : -1);
-        dest.writeLong(this.fechaObjetio != null ? this.fechaObjetio.getTime() : -1);
-        dest.writeByte(this.prioritario ? (byte) 1 : (byte) 0);
-        // Nuevos atributos URL
-        dest.writeString(this.urlDoc);
-        dest.writeString(this.urlAud);
-        dest.writeString(this.urlVid);
-        dest.writeString(this.urlImg);
+    public void readFromParcel(Parcel source) {
+        this.titulo = source.readString();
+        this.descripcion = source.readString();
+        this.progreso = source.readInt();
+        this.id = source.readInt();
+        long tmpFechaCreacion = source.readLong();
+        this.fechaCreacion = tmpFechaCreacion == -1 ? null : new Date(tmpFechaCreacion);
+        long tmpFechaObjetio = source.readLong();
+        this.fechaObjetio = tmpFechaObjetio == -1 ? null : new Date(tmpFechaObjetio);
+        this.prioritario = source.readByte() != 0;
+        this.urlDoc = source.readString();
+        this.urlImg = source.readString();
+        this.urlAud = source.readString();
+        this.urlVid = source.readString();
     }
 
     protected Tarea(Parcel in) {
@@ -222,9 +242,9 @@ public class Tarea implements Parcelable {
         long tmpFechaObjetio = in.readLong();
         this.fechaObjetio = tmpFechaObjetio == -1 ? null : new Date(tmpFechaObjetio);
         this.prioritario = in.readByte() != 0;
-        this.urlAud = in.readString();
         this.urlDoc = in.readString();
         this.urlImg = in.readString();
+        this.urlAud = in.readString();
         this.urlVid = in.readString();
     }
 

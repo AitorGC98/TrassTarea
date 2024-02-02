@@ -12,15 +12,49 @@ public class CompartirViewModel extends ViewModel {
     private final MutableLiveData<String> fechaCreacion = new MutableLiveData<>();
     private final MutableLiveData<String> fechaObjetivo = new MutableLiveData<>();
     private final MutableLiveData<Boolean> prioritarias = new MutableLiveData<>();
+    private final MutableLiveData<String> urlDoc = new MutableLiveData<>();
+    private final MutableLiveData<String> urlImg = new MutableLiveData<>();
+    private final MutableLiveData<String> urlAud = new MutableLiveData<>();
+    private final MutableLiveData<String> urlVid = new MutableLiveData<>();
+
 
     public void setTitulo(String nomb) {
        titulo.setValue(nomb);
     }
 
     public MutableLiveData<String> getTitulo() {
-
         return titulo;
     }
+
+    public MutableLiveData<String> getUrlDoc() {
+
+        return urlDoc;
+    }
+    public MutableLiveData<String> getUrlImg() {
+
+        return urlImg;
+    }
+    public MutableLiveData<String> getUrlAud() {
+
+        return urlAud;
+    }
+    public MutableLiveData<String> getUrlVid() {
+
+        return urlVid;
+    }
+    public void setUrlDoc(String des) {
+        urlDoc.setValue(des);
+    }
+    public void setUrlImg(String des) {
+        urlImg.setValue(des);
+    }
+    public void setUrlAud(String des) {
+        urlAud.setValue(des);
+    }
+    public void setUrlVid(String des) {
+        urlVid.setValue(des);
+    }
+
 
     public void setDescripcion(String des) {
         descripcion.setValue(des);

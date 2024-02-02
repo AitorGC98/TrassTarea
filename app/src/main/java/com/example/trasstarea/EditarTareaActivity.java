@@ -51,6 +51,10 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
             compartirViewModel.setPrioritarias(tareaVM.isPrioritario());
             compartirViewModel.setFechaCreacion(formatoFecha.format(tareaVM.getFechaCreacion()));
             compartirViewModel.setFechaObjetivo(formatoFecha.format(tareaVM.getFechaObjetio()));
+            compartirViewModel.setUrlDoc(tareaVM.getUrlDoc());
+            compartirViewModel.setUrlVid(tareaVM.getUrlVid());
+            compartirViewModel.setUrlImg(tareaVM.getUrlImg());
+            compartirViewModel.setUrlAud(tareaVM.getUrlAud());
 
 
             int i = 0;
@@ -140,6 +144,23 @@ public class EditarTareaActivity extends AppCompatActivity implements Fragmento1
 
 
         Tarea tarea=new Tarea(titulo, descripcion, progreso, fechaCreacion, fechaObjetivo, prioritaria);
+
+        if (compartirViewModel.getUrlDoc().getValue() != null) {
+            tarea.setUrlDoc(compartirViewModel.getUrlDoc().getValue().toString());
+        }
+
+        if (compartirViewModel.getUrlAud().getValue() != null) {
+            tarea.setUrlAud(compartirViewModel.getUrlAud().getValue().toString());
+        }
+
+        if (compartirViewModel.getUrlVid().getValue() != null) {
+            tarea.setUrlVid(compartirViewModel.getUrlVid().getValue().toString());
+        }
+
+        if (compartirViewModel.getUrlImg().getValue() != null) {
+            tarea.setUrlImg(compartirViewModel.getUrlImg().getValue().toString());
+        }
+
         tarea.setId(tareaVM.getId());
         Intent intentVolver = new Intent();
         intentVolver.putExtra("Resultado", tarea);

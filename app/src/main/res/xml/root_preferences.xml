@@ -1,0 +1,67 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/categoria_visualizacion">
+        <SwitchPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:title="@string/preferencia_tema"
+            app:icon="@drawable/ic_theme"
+            app:key="tema" />
+        <ListPreference
+
+            app:entries="@array/valores_mostrados"
+            app:entryValues="@array/valores_leidos"
+            app:icon="@drawable/ic_leta"
+            app:key="letra"
+            app:summary="Elige tamaño letra"
+            app:title="@string/letra"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/ordenacion" >
+        <ListPreference
+
+            app:entries="@array/valores_criterio"
+            app:entryValues="@array/valores_leidos"
+            app:icon="@drawable/ic_filtro"
+            app:key="criterio"
+            app:summary="Elige criterio"
+            app:title="@string/criterio"
+            app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:title="@string/orden"
+            app:icon="@drawable/ic_orden"
+            app:key="orden" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="@string/almacenamiento">
+
+        <SwitchPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:title="@string/tarjeta_sd"
+            app:key="sd" />
+    </PreferenceCategory>
+    <EditTextPreference
+        android:defaultValue="0"
+        android:key="limpieza"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/limpieza_arch"
+        android:inputType="number"/>
+
+    <Preference
+        android:id="@+id/btn"
+        android:key="restablecer"
+        app:layout="@layout/boton_preferencias"/>
+
+
+</PreferenceScreen>

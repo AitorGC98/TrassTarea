@@ -13,12 +13,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/et_titulo"
+        app:boxStrokeColor="@android:color/darker_gray"
         app:layout_constraintBottom_toTopOf="@+id/til_fechaCreacion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:boxStrokeColor="@android:color/darker_gray">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <com.google.android.material.textfield.TextInputEditText
@@ -43,10 +43,10 @@
             android:id="@+id/et_fechaCreacion"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:focusable="false"
             android:clickable="true"
-            android:maxLines="1"/>
+            android:focusable="false"
+            android:inputType="date"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -65,10 +65,10 @@
             android:id="@+id/et_fechaObjetivo"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:focusable="false"
             android:clickable="true"
-            android:maxLines="1"/>
+            android:focusable="false"
+            android:inputType="date"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Spinner
@@ -97,15 +97,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="266dp"
-        android:layout_marginEnd="55dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginEnd="65dp"
         android:backgroundTint="@color/boton"
         android:text="@string/btn_siguiente"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.519"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnCancelar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chb_prioritaria" />
+
+    <Button
+        android:id="@+id/btnCancelar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="69dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginBottom="68dp"
+        android:backgroundTint="@color/boton"
+        android:text="@string/cancelar"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_siguiente"
+        app:layout_constraintHorizontal_bias="0.671"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chb_prioritaria" />
 
