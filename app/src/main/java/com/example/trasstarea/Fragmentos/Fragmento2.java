@@ -749,7 +749,7 @@ public class Fragmento2 extends Fragment {
             }
         }
     }
-   
+
     public static boolean borrarArchivo(String urlArchivo) {
         try {
             // Crear un objeto File con la URL proporcionada

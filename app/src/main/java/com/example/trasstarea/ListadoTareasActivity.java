@@ -86,6 +86,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         tvLista = findViewById(R.id.tv_lista);
 
+        //detecta que lista de tareas debe usarse
         if(mostrarSoloPrioritarias){
             mostrarPrioritarias();
             actualizarEstadoTextView();
@@ -98,6 +99,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
 
     }
 
+    //guarda los datos al destruirse la actividad
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -108,6 +110,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
         outState.putBoolean("mostrarSoloPrioritarias", mostrarSoloPrioritarias);
     }
 
+    //launcher de la clase crear
     ActivityResultLauncher<Intent> lanzadorActividades = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -134,6 +137,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
                 }
             });
 
+    //launcher de la clase editar
     ActivityResultLauncher<Intent> lanzadorEditar = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -228,6 +232,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
         lanzadorEditar.launch(intentIda);
     }
 
+    //metodo que llama al obserbador de la lista live data de las tareas prioritarias y las establece en el recycler
     public void mostrarPrioritarias(){
         baseDatos.productoDAO().getTareasFavoritas().observe(this, new Observer<List<Tarea>>() {
             @Override
@@ -241,6 +246,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
         });
     }
 
+    //metodo que llama al obserbador de la lista live data de todas las tareasd y las establece en el recycler
     public void mostrarTodas(){
         baseDatos.productoDAO().getAll().observe(this, new Observer<List<Tarea>>() {
             @Override
@@ -293,7 +299,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
     }
 
 
-    //por el usuario.
+    //por el usuario
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         int posicion = -1;

@@ -52,6 +52,7 @@ public class EstadisticasActivity extends AppCompatActivity {
 
     }
 
+    //Clases que realizan consultas en segundo plano
     class ObtenerProgresoMedio implements Runnable {
 
         @Override

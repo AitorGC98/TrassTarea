@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
+import androidx.core.os.EnvironmentCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
@@ -25,6 +27,8 @@ import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
 import com.example.trasstarea.R;
+
+import java.io.File;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -102,7 +106,7 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             SwitchPreference sdPreference = (SwitchPreference) findPreference("sd");
-            sdPreference.setEnabled(false);//inhabilita el switch sd si no dispone de tarjeta sd el dispositivo
+            sdPreference.setEnabled(hasSDCard());//inhabilita el switch sd si no dispone de tarjeta sd el dispositivo
         }
         private void setDefaultValueSwitch(String key, boolean value) {
             SwitchPreference switchPreference = findPreference(key);
@@ -123,7 +127,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         public void setDefaultValues() {
             setDefaultValueSwitch("tema", false);
-            setDefaultValueListOrEditText("letra", "2");
+            setDefaultValueListOrEditText("nombrebd", "bd");
+            setDefaultValueListOrEditText("ip", "10.0.2.2");
+            setDefaultValueListOrEditText("puerto", "1001");
+            setDefaultValueListOrEditText("usuario", "usuario");
+            setDefaultValueListOrEditText("password", "");
             setDefaultValueListOrEditText("criterio", "2");
             setDefaultValueSwitch("orden", false);
             setDefaultValueSwitch("sd", false);
@@ -131,10 +139,19 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private boolean hasSDCard() {
-            String state = Environment.getExternalStorageState();
-            return Environment.MEDIA_MOUNTED.equals(state) ||
-                    Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+            File[] externalStorageFiles = ContextCompat.getExternalFilesDirs(requireContext(), null);
+
+            for (File file : externalStorageFiles) {
+                if (file != null && Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file))) {
+                    // Se ha encontrado un directorio en una tarjeta SD externa que está montada
+                    return true;
+                }
+            }
+
+            // No se encontró ninguna tarjeta SD externa montada
+            return false;
         }
+        //reestablece el fragmento de settings
         private void restartSettingsFragment() {
 
             if (getActivity() != null) {
@@ -143,12 +160,14 @@ public class SettingsActivity extends AppCompatActivity {
                 getActivity().startActivity(intent);
             }
         }
+
+        //Establece el factor de escala para la fuente predeterminada de toda la aplicación en Android.
         private void setDefaultFontScale(float factorDeEscala) {
             // Configura el factor de escala para toda la aplicación
-            Resources resources = getResources();
-            Configuration configuration = resources.getConfiguration();
-            configuration.fontScale = factorDeEscala;
-            resources.updateConfiguration(configuration, null);
+            Resources resources = getResources();//optiene los recursos de la aplicación
+            Configuration configuration = resources.getConfiguration();//optiene la configuración de la app
+            configuration.fontScale = factorDeEscala;//establece el factor de escala de la fuente de la aplicacion
+            resources.updateConfiguration(configuration, null);// Actualiza la configuración de recursos con la nueva configuración
         }
 
     }
