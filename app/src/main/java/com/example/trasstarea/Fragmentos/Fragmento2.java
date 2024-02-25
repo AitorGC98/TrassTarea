@@ -1,10 +1,8 @@
 package com.example.trasstarea.Fragmentos;
 
-import static com.example.trasstarea.ListadoTareasActivity.borrarArchivo;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +22,7 @@ import android.os.Environment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,11 +46,7 @@ public class Fragmento2 extends Fragment {
     private EditText etmDescripcion;
     private TextView tvImg,tvDoc,tvAud,tvVid;
     private CompartirViewModel compartirViewModel;
-    private static final int PICK_PDF_REQUEST = 1;
-    private static final int PICK_VIDEO_REQUEST = 2;
-    private static final int PICK_IMAGE_REQUEST = 3;
-    private static final int PICK_AUDIO_REQUEST = 4;
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+
     private static final String DIRECTORIO_ARCHIVOS = "archivos";
     private SharedPreferences sharedPreferences;
     private boolean tarjetaSD =false;
@@ -189,10 +184,11 @@ public class Fragmento2 extends Fragment {
 
     }
     private void handleResult(Uri uri) {
+
         // Aquí puedes manejar el resultado según el tipo de archivo seleccionado
         if (uri != null) {
             // Implementa la lógica necesaria para cada tipo de archivo
-            // Por ejemplo, puedes mostrar la URL en un TextView
+
             String tipoArchivo = requireContext().getContentResolver().getType(uri);
             if ("application/pdf".equals(tipoArchivo)) {
                 LiveData<String> urlDocLiveData = compartirViewModel.getUrlDoc();

@@ -1,0 +1,28 @@
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Primera mitad de la animación: solo rotación -->
+    <rotate
+        android:fromDegrees="0"
+        android:toDegrees="360"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="1000" />
+
+    <!-- Segunda mitad de la animación: rotación y escala -->
+    <scale
+        android:fromXScale="0.1"
+        android:toXScale="1.0"
+        android:fromYScale="0.1"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:startOffset="1000"
+        android:duration="1000" />
+
+    <rotate
+        android:fromDegrees="180"
+        android:toDegrees="360"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:startOffset="1000"
+        android:duration="1000" />
+</set>

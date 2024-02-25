@@ -6,27 +6,35 @@ import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.trasstarea.Datos.Tarea;
+import com.example.trasstarea.animaciones.TextViewAnimator;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
+    private TextView texto;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_main);
+
+        ImageView imagen=findViewById(R.id.icono);
+        Animation logoAnimation = AnimationUtils.loadAnimation(this, R.anim.animacion_imagen);
+        imagen.startAnimation(logoAnimation);
+
+       texto=findViewById(R.id.textView);
+        TextViewAnimator animator = TextViewAnimator.perLetter(texto);
+        animator.setDuration(5000); // Duración de la animación en milisegundos
+        animator.start();
        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
        //Bindeo del boton
         Button btnEmpezar = findViewById(R.id.btn_empezar);

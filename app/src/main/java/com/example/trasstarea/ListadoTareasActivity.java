@@ -123,7 +123,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
                         Intent intentDevuelto = result.getData();
                         assert intentDevuelto != null;
                         Tarea tarea = (Tarea) Objects.requireNonNull(intentDevuelto.getExtras()).get("Resultado");
-                        Toast.makeText(getApplicationContext(), tarea.getUrlDoc(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Nueva tarea guardada", Toast.LENGTH_LONG).show();
                         adaptador = (TareaAdapter) rv.getAdapter();
                         if(adaptador!=null){
 
@@ -489,6 +489,7 @@ public class ListadoTareasActivity extends AppCompatActivity {
         resources.updateConfiguration(configuration, null);
     }
 
+    //se encarga de ordenar la lista según le indica la preferencia
     public void ordenarLista() {
         // Criterio 1: Alfabético
         if (criterio == 1) {
