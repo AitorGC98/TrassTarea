@@ -36,6 +36,20 @@ public class CustomSurfaceView extends SurfaceView implements SurfaceHolder.Call
         screenWidth = getWidth();
         screenHeight = getHeight();
 
+        // Limpiar la lista de shapes si ya tiene más de 3 elementos
+        if (shapes.size() > 3) {
+            shapes.clear();
+        }
+        // Agregar solo 3 figuras si no hay suficientes en la lista
+        while (shapes.size() < 3) {
+            // Agregar círculos
+            for (int i = 0; i < 1; i++) {
+                shapes.add(new Circle(screenWidth, screenHeight, SHAPE_SIZE));
+                if (shapes.size() >= 3) break;
+            }
+
+
+
         // Crear círculos
         for (int i = 0; i < NUM_CIRCLES; i++) {
             shapes.add(new Circle(screenWidth, screenHeight, SHAPE_SIZE));
@@ -55,6 +69,7 @@ public class CustomSurfaceView extends SurfaceView implements SurfaceHolder.Call
         for (int i = 0; i < NUM_TRIANGLES; i++) {
             shapes.add(new Triangle(screenWidth, screenHeight, SHAPE_SIZE));
         }
+    }
 
         drawThread = new DrawThread(getHolder());
         drawThread.setRunning(true);

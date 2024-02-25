@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,8 +37,19 @@ public class MainActivity extends AppCompatActivity {
         animator.setDuration(5000); // Duración de la animación en milisegundos
         animator.start();
        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
+
        //Bindeo del boton
         Button btnEmpezar = findViewById(R.id.btn_empezar);
+        Animation bounceAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.boton_animacion);
+        final Animation pressAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.boton_pulsado);
+        btnEmpezar.startAnimation(bounceAnimation);
+
+        btnEmpezar.setOnTouchListener((v, event) -> {
+            if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                v.startAnimation(pressAnimation);
+            }
+            return false;
+        });
         //acción establecida para el botón cuando este es pulsado
         btnEmpezar.setOnClickListener(this::enviar);
 

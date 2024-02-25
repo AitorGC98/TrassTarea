@@ -20,6 +20,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -85,6 +87,8 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
                 return false;
             }
         });
+        Animation slideInAnimation = AnimationUtils.loadAnimation(contexto, R.anim.recylcer_anim);
+        holder.itemView.startAnimation(slideInAnimation);
     }
 
     @Override
