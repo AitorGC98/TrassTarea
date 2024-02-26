@@ -1,9 +1,16 @@
 package com.example.trasstarea.Fragmentos;
 
 
+import static android.app.Activity.RESULT_OK;
+
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,16 +20,19 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,11 +45,15 @@ import com.example.trasstarea.FragmentsUtilities.CompartirViewModel;
 
 import com.example.trasstarea.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Fragmento2 extends Fragment {
 
@@ -51,7 +65,11 @@ public class Fragmento2 extends Fragment {
     private SharedPreferences sharedPreferences;
     private boolean tarjetaSD =false;
     private ActivityResultLauncher<String> mGetContentLauncher;
-
+    private ActivityResultLauncher<Intent> mCameraLauncher;
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    ActivityResultLauncher<Intent> mVideoLauncher;
+    private ActivityResultLauncher<Intent> mAudioLauncher;
 
     public interface ComunicarFragmento2{
         void onBotonGuardar();
@@ -77,9 +95,62 @@ public class Fragmento2 extends Fragment {
             if (uri != null) {
                 // Handle the result here
                 handleResult(uri);
+                Log.d("MiAplicacion", "LO QUE LE DOY AL HANDLE: "+uri );
             }
         });
         compartirViewModel = new ViewModelProvider(requireActivity()).get(CompartirViewModel.class);
+
+        mCameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null) {
+                    Bundle extras = data.getExtras();
+                    if (extras != null && extras.containsKey("data")) {
+                        // La imagen se capturó desde la cámara
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        Uri imageUri = getImageUri(requireContext(), imageBitmap);
+                        handleResult(imageUri);
+                    } else {
+                        // La imagen se seleccionó desde la galería
+                        Uri imageUri = data.getData();
+                        Log.d("MiAplicacion", "LO QUE LE DOY AL HANDLE abajo: "+imageUri );
+                        handleResult(imageUri);
+                    }
+                }
+            }
+        });
+
+         mAudioLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                // Aquí puedes manejar el resultado de la actividad, como obtener la URI del audio y manejarla
+                Intent data = result.getData();
+                if (data != null) {
+                    Uri audioUri = data.getData();
+                    handleResult(audioUri);
+                }
+            }
+        });
+
+         mVideoLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                // Aquí puedes manejar el resultado de la actividad, como obtener la URI del video y manejarla
+                Intent data = result.getData();
+                if (data != null) {
+                    Uri videoUri = data.getData();
+                    handleResult(videoUri);
+                }
+            }
+        });
+
+        compartirViewModel = new ViewModelProvider(requireActivity()).get(CompartirViewModel.class);
+
+    }
+
+    private Uri getImageUri(Context context, Bitmap bitmap) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Title", null);
+        return Uri.parse(path);
     }
 
     @Override
@@ -117,21 +188,63 @@ public class Fragmento2 extends Fragment {
         btnVid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGetContentLauncher.launch("video/*");
+                // Crear un intent para seleccionar un video de los archivos del dispositivo
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+
+                // Crear un intent para grabar un video utilizando la cámara del dispositivo
+                Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+
+                // Crear un intent chooser para elegir entre la galería y la cámara
+                Intent chooserIntent = Intent.createChooser(galleryIntent, "Seleccionar video");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
+
+                // Lanzar el intent utilizando el lanzador mVideoLauncher
+                mVideoLauncher.launch(chooserIntent);
             }
         });
+        btnImg.setOnClickListener(v -> {
+            // Crear un intent para seleccionar una imagen de la galería
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-        btnImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mGetContentLauncher.launch("image/*");
-            }
+            // Crear un intent para capturar una imagen desde la cámara
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            // Crear un intent chooser para elegir entre la cámara y la galería
+            Intent chooserIntent = Intent.createChooser(galleryIntent, "Seleccionar imagen");
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
+
+            // Lanzar el lanzador de actividad mCameraLauncher con el intent chooser
+            mCameraLauncher.launch(chooserIntent);
         });
-
         btnAud.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGetContentLauncher.launch("audio/*");
+                // Crear un diálogo de selección de opciones
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Seleccionar opción");
+                builder.setItems(new CharSequence[]{"Seleccionar archivo", "Grabar audio"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                // El usuario elige seleccionar un archivo de audio
+                                mGetContentLauncher.launch("audio/*");
+                                break;
+                            case 1:
+                                // El usuario elige grabar audio
+                                try{
+                                    Intent recordIntent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                                    mAudioLauncher.launch(recordIntent);
+                                    break;
+                                }catch (Exception e){
+                                    Toast.makeText(requireContext(), "No hay aplicaciones disponibles para grabar audio", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+
+                        }
+                    }
+                });
+                builder.create().show();
             }
         });
 
@@ -184,7 +297,7 @@ public class Fragmento2 extends Fragment {
 
     }
     private void handleResult(Uri uri) {
-
+        Log.d("MiAplicacion", "URI de la imagen: " + uri);
         // Aquí puedes manejar el resultado según el tipo de archivo seleccionado
         if (uri != null) {
             // Implementa la lógica necesaria para cada tipo de archivo

@@ -26,4 +26,6 @@
         <item name="colorAccent">@color/dark_paper_text_secondary</item>
 
     </style>
+
+
 </resources>

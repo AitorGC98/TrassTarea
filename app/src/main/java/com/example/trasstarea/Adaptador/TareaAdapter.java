@@ -47,6 +47,9 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
     private List<Tarea> datos;
     Context contexto;
     private int posicion;
+    private boolean primeraEjecucion=true;
+    private  int pos;
+
 
     public TareaAdapter(Context contexto,List<Tarea> datos) {
         this.datos = datos;
@@ -60,6 +63,7 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
     public void setDatos(List<Tarea> datos) {
         this.datos = datos;
         notifyDataSetChanged();
+
     }
 
     public int getPosicion() {
@@ -87,8 +91,8 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
                 return false;
             }
         });
-        Animation slideInAnimation = AnimationUtils.loadAnimation(contexto, R.anim.recylcer_anim);
-        holder.itemView.startAnimation(slideInAnimation);
+        //Animation slideInAnimation = AnimationUtils.loadAnimation(contexto, R.anim.recylcer_anim);
+        //holder.itemView.startAnimation(slideInAnimation);
     }
 
     @Override
@@ -140,9 +144,6 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             builder.show();
         }
 
-        private void showToast() {
-            Toast.makeText(itemView.getContext(), contexto.getString(R.string.tarea_borrada), Toast.LENGTH_SHORT).show();
-        }
         public void bindTarea(Tarea t) {
 
             // Agregar un OnClickListener al itemView
@@ -151,7 +152,7 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
                 public void onClick(View v) {
                     // Obtener la tarea actualmente seleccionada
                     Tarea tareaSeleccionada = datos.get(getAdapterPosition());
-
+                     pos= getAdapterPosition();
                     // Crear un Intent para iniciar la nueva actividad
                     Intent intent = new Intent(contexto, MostrarTarea.class);
                     intent.putExtra("tarea", tareaSeleccionada);
@@ -200,9 +201,25 @@ public class TareaAdapter extends RecyclerView.Adapter<TareaAdapter.TareaViewHol
             }
             progreso.setProgress(t.getProgreso());
 
+            // Verificar si es la primera ejecución y ejecutar la animación
+            if (primeraEjecucion) {
+                primeraEjecucion = false;
+                Animation slideInAnimation = AnimationUtils.loadAnimation(contexto, R.anim.recylcer_anim);
+                itemView.startAnimation(slideInAnimation);
+            } else {
+                // Verificar si la posición actual es mayor que la anterior
+                if (getAdapterPosition() > pos) {
+                    // Si es mayor, se ha añadido una nueva tarea, ejecutar la animación
+                    Animation slideInAnimation = AnimationUtils.loadAnimation(contexto, R.anim.recylcer_anim);
+                    itemView.startAnimation(slideInAnimation);
+                    // Actualizar la posición
+                    pos = getAdapterPosition();
+                }
+            }
+
+
         }
 
     }
-
 
 }
